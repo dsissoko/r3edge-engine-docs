@@ -75,3 +75,6 @@ Nous suivons une convention stricte pour les messages de commit afin de mainteni
 - **Messages clairs et descriptifs** : Le message de commit doit être court mais précis. Il doit clairement décrire ce qui a été fait.
 - **Pas de point final** : Il est d'usage de ne pas mettre de point à la fin du message de commit.
 
+---
+
+## Retour à la [section Guides](index.md)

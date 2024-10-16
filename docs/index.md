@@ -7,12 +7,9 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 1. [Introduction](introduction.md)
 2. [Processus Métier](processus-métier/index.md)
 3. [Architecture](architecture/index.md)
-4. [Microservices Métiers](microservices/index.md)
-5. [DevOps et Déploiement](devops/index.md)
-6. [Sécurité](secops/index.md)
 7. [Index des Guides](guides/index.md) : Accédez à tous les guides utilisateur, développeur et contribution.
 8. [FAQ et Résolution des Problèmes](faq.md)
-9. [Glossaire](glossaire.md)
+9. [Glossaire](glossary.md)
 10. [Annexes](annexes.md)
 
 ---

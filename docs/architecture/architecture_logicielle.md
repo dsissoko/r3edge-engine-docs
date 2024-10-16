@@ -54,6 +54,6 @@ TODO
 
 ---
 
-## Retour à l'index
+## Retour à la [section Architecture](index.md)
 
 [Retour à la page d'accueil de l'architecture](index.md)
