@@ -8,5 +8,21 @@ Bienvenue dans le dépôt de documentation de **r3edge-engine**, le moteur de tr
 
 ## Structure du Dépôt
 
-à date, ce dépôt contient uniquement un répertoire doc dans lequel la documentation est créée au format markdown.
+à date, ce dépôt contient uniquement un répertoire docs dans lequel la documentation est créée au format markdown.
+
+## Contribuer
+
+Nous n'acceptons pas les contributions externes à la documentation pour le moment. Toute utilisation ou modification de cette documentation est strictement interdite sans autorisation préalable.
+
+## Support
+
+Pour toute question ou suggestion, veuillez contacter l'équipe de support à [hello@r3edge.com](mailto:hello@r3edge.com).
+
+## Licence
+
+Ce projet est sous licence [Tous droits réservés](LICENSE).
+
+---
+© 2024 r3edge. Tous droits réservés.
+
 
