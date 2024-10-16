@@ -18,4 +18,9 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 
 ---
 
+## Navigation
+
+Utilisez les liens ci-dessus pour naviguer vers les différentes parties de l'architecture. Retournez à la [page d'accueil de la documentation](index.md) si nécessaire.
+
+
 © 2024 r3edge. Tous droits réservés.
