@@ -5,7 +5,7 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 ## Table des Matières
 
 1. [Introduction](introduction.md)
-2. [Processus Métier](processus-metier/index.md)
+2. [Processus Métier](processus-métier/index.md)
 3. [Architecture](architecture/index.md)
 4. [Modèles de Données](modeles-donnees.md)
 5. [Microservices Métiers](microservices-metier.md)
@@ -15,7 +15,7 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 9. [DevOps et Déploiement](devops-deploiement.md)
 10. [Sécurité](securite.md)
 11. [Documentation des API](documentation-api.md)
-12. [Guide de Contribution](guide-de-contribution.md)
+12. [Index des Guides](guides/index.md) : Accédez à tous les guides utilisateur, développeur et contribution.
 13. [FAQ et Résolution des Problèmes](faq.md)
 14. [Glossaire](glossaire.md)
 15. [Annexes](annexes.md)
