@@ -1,0 +1,28 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    // Activer l'analyse des nullités automatique pour Java
+    "java.compile.nullAnalysis.mode": "automatic",
+    // Activer l'autocomplétion pour Java
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": true
+    },
+    // Activer la génération automatique des imports pour Java
+    "java.completion.importOrder": [
+        "java",
+        "javax",
+        "org",
+        "com"
+    ],
+    "java.completion.favoriteStaticMembers": [
+        "java.util.Objects.requireNonNull",
+        "java.util.Objects.isNull"
+    ],
+    // Générer automatiquement les imports manquants lors de l'écriture du code
+    "java.completion.importsOnPaste": "true",
+    // Générer les imports automatiquement si nécessaire lors de la sauvegarde du fichier
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    }
+}

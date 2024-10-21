@@ -3,13 +3,9 @@
  */
 package hmmtest1;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Getter
-@Setter
 public class App {
 
     public String getGreeting() {
@@ -19,6 +15,5 @@ public class App {
 
     public static void main(String[] args) {
         log.info(new App().getGreeting());
-        // System.out.println(new App().getGreeting());
     }
 }
