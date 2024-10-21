@@ -1,0 +1,59 @@
+
+plugins {
+    id 'application'
+    id 'pmd'
+    id "io.freefair.lombok" version "8.10.2"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // SLF4J pour la gestion des logs
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+
+    // Logback pour l'implémentation de SLF4J
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    implementation 'ch.qos.logback:logback-core:1.4.11'
+
+    // Guava (bibliothèque utilitaire)
+    implementation 'com.google.guava:guava:33.3.1-jre'
+
+    // JUnit Jupiter pour les tests
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = "com.r3edge.engine.examples.hmm.App"
+}
+
+pmd {
+    consoleOutput = true
+    toolVersion = "7.0.0"
+    ignoreFailures = false
+    rulesMinimumPriority = 5
+    ruleSets = ['category/java/bestpractices.xml']
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.required = false
+        html.required = true
+    }
+}
+
+tasks.check {
+    dependsOn tasks.pmdMain
+}
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
