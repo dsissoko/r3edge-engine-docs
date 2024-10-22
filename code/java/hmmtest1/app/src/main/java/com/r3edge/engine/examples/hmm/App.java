@@ -16,6 +16,7 @@ public class App {
 
     public static void main(String[] args) {
         // tout passe des logs
+        // Comment inutile
         log.info(new App().getGreeting());
     }
 }
