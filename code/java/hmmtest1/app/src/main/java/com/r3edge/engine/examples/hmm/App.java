@@ -16,6 +16,5 @@ public class App {
 
     public static void main(String[] args) {
         log.info(new App().getGreeting());
-        log.warn(new App().getGreeting());
     }
 }
