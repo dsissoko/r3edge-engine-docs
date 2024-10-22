@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 public class App {
 
     public String getGreeting() {
-        log.info("ça parle !!!");
+        // Comment inutile
+        log.info("ça parle bien, très bien même !!!");
         return "Hello World!";
     }
 
