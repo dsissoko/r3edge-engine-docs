@@ -11,6 +11,7 @@ public class App {
     public String getGreeting() {
         // Comment inutile
         log.info("ça parle bien !!!");
+        log.warn("ça parle bien !!!");
         return "Hello World!";
     }
 
