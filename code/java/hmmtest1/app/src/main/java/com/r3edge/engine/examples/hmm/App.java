@@ -10,7 +10,7 @@ public class App {
 
     public String getGreeting() {
         // Comment inutile
-        log.info("ça parle bien, très bien même !!!");
+        log.info("ça parle bien !!!");
         return "Hello World!";
     }
 
