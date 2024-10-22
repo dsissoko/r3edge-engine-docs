@@ -10,10 +10,10 @@ name: Java CI with Gradle
 on:
   push:
     paths:
-      - 'r3edge-engine-docs/code/java/hmmtest1/**'
+      - 'code/java/hmmtest1/**'
   pull_request:
     paths:
-      - 'r3edge-engine-docs/code/java/hmmtest1/**'
+      - 'code/java/hmmtest1/**'
 
 jobs:
   build:
