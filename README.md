@@ -4,7 +4,7 @@ Bienvenue dans le dépôt de documentation de **r3edge-engine**, le moteur de tr
 
 ## Accéder à la Documentation
 
-- [Documentation en ligne](docs/index)
+- [Documentation en ligne](docs/index.md)
 
 ## Structure du Dépôt
 
