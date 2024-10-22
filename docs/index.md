@@ -15,3 +15,5 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 ---
 
 © 2024 r3edge. Tous droits réservés.
+
+[![HMM1 Java CI with Gradle](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml/badge.svg?branch=main)](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml)

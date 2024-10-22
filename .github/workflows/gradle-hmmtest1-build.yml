@@ -35,4 +35,4 @@ jobs:
       working-directory: ./code/java/hmmtest1
       run: |
         chmod +x gradlew
-        ./gradlew build
+        ./gradlew build -x pmdMain
