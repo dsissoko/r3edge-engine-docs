@@ -14,6 +14,7 @@ public class App {
     }
 
     public static void main(String[] args) {
+        // tout passe des logs
         log.info(new App().getGreeting());
     }
 }
