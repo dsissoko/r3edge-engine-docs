@@ -8,7 +8,7 @@
 name: HMM1 Java CI with Gradle
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: 
   push:
     paths:
       - 'code/java/hmmtest1/**'
