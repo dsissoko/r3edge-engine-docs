@@ -33,4 +33,6 @@ jobs:
 
     - name: Build with Gradle
       working-directory: ./code/java/hmmtest1
-      run: ./gradlew build
+      run: |
+        chmod +x gradlew
+        ./gradlew build
