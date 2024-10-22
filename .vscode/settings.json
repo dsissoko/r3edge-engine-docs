@@ -23,6 +23,6 @@
     "java.completion.importsOnPaste": "true",
     // Générer les imports automatiquement si nécessaire lors de la sauvegarde du fichier
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+        "source.organizeImports": "explicit"
     }
 }
