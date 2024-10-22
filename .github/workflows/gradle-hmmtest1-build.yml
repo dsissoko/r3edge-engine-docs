@@ -15,8 +15,6 @@ on:
     paths:
       - 'code/java/hmmtest1/**'
 
-workflow_dispatch:  # Permet de déclencher manuellement l'action
-
 jobs:
   build:
 
