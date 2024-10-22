@@ -4,7 +4,7 @@ Bienvenue dans le dépôt de documentation de **r3edge-engine**, le moteur de tr
 
 ## Accéder à la Documentation
 
-- [Documentation en ligne](https://dsissoko.github.io/r3edge-engine-docs/)
+- [Documentation en ligne](docs/index)
 
 ## Structure du Dépôt
 
