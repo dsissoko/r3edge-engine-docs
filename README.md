@@ -27,5 +27,3 @@ Ce projet est sous licence [Tous droits réservés](LICENSE).
 © 2024 r3edge. Tous droits réservés.
 
 [![HMM1 Java CI with Gradle](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml/badge.svg?branch=main)](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml)
-
-
