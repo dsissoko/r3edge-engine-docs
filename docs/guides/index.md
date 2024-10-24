@@ -1,6 +1,6 @@
 # Index des Guides
 
-Ce document regroupe tous les guides disponibles pour vous aider à utiliser et à contribuer au projet [Nom du Projet].
+Ce document regroupe tous les guides disponibles pour vous aider à utiliser et à contribuer sur **r3edge-engine**.
 
 ## Table des Matières
 

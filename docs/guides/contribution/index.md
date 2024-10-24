@@ -6,11 +6,17 @@ Bienvenue dans la section de contribution du projet [Nom du Projet] ! Nous somme
 
 Pour contribuer au projet, veuillez suivre les étapes suivantes :
 
-1. **Forker le Repository** : Créez un fork de ce projet en cliquant sur le bouton "Fork" en haut à droite de la page GitHub.
+1. **Forker le Repository** : Créez un fork de ce projet en cliquant sur le bouton "Fork" en haut à droite de la page GitHub. Les repository possibles sont : 
+
+ - r3edge-engine-iac : dépôt pour la gestion IAC
+ - r3edge-engine-backend : dépôt pour le backend hors microservice
+ - r3edge-engine-ms-1 : dépôt pour le microservice 1
+ - r3edge-engine-ms-2 : dépôt pour le microservice 2
+ - etc.
    
 2. **Cloner le Fork** : Clonez votre fork sur votre machine locale.
 
-   git clone https://github.com/votre-nom-utilisateur/[nom-du-repo].git
+   git clone https://github.com/dsissoko/[nom-du-repo].git
 
 3. **Créer une Branche** : Créez une nouvelle branche pour y apporter vos modifications. Choisissez un nom de branche descriptif.
 

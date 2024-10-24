@@ -14,7 +14,7 @@ Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algor
 - **Analyse en Temps Réel** : Capacité à traiter et analyser les données de marché en temps réel pour identifier les opportunités de trading.
 - **Gestion des Ordres** : Système robuste de gestion des ordres permettant la création, l'exécution et le suivi des transactions.
 - **Reporting et Monitoring** : Outils intégrés de reporting et de surveillance offrant une visibilité complète sur les performances des stratégies de trading.
-- **Interface Utilisateur Intuitive** : Interface conviviale facilitant la configuration des stratégies et la gestion des opérations de trading.
+- **Interface Utilisateur** : Interface conviviale facilitant la configuration des stratégies et la gestion des opérations de trading.
 
 ---
 
