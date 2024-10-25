@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structure avec Menu Rétractable et Header à 3 Colonnes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="sidebar">
+        <ul>
+            <li><a href="#" onclick="updateMainContent('tableauDeBord')">Tableau de Bord</a></li>
+            <li><a href="#" onclick="updateMainContent('marche')">Ciblage des Marchés</a></li>
+            <li><a href="#" onclick="updateMainContent('sessions')">Gestion des Sessions</a></li>
+            <li><a href="#" onclick="updateMainContent('strategies')">Présentation des Stratégies</a></li>
+            <li><a href="#" onclick="updateMainContent('social')">Écran Social</a></li>
+        </ul>
+    </div>
+
+    <div id="container">
+        <header>
+            <div class="header-column-1">
+                <button id="toggleButton" onclick="toggleMenu()">
+                    <img src="menu-icon.svg" alt="Menu" class="menu-icon">
+                </button>
+            </div>
+            <div class="header-column-2">
+                <div id="market-messages" class="marquee">
+                    <p>Alertes de marché : Bitcoin en hausse, Nasdaq en baisse, pétrole stable...</p>
+                </div>
+                <div id="breadcrumb">
+                    <p>Tableau de Bord</p>
+                </div>
+            </div>
+            <div class="header-column-3">
+                <button id="notificationButton">🔔</button>
+            </div>
+        </header>
+        
+        <div id="main-content">
+            <h2>Bienvenue sur le tableau de bord</h2>
+            <p>Sélectionnez une option dans le menu pour afficher le contenu correspondant.</p>
+        </div>
+        
+        <footer>
+            <div class="header-column-2">
+                <p>© 2024 r3edge. Tous droits réservés.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
