@@ -5,6 +5,7 @@ Bienvenue dans la section **Processus Métier** de la documentation de **r3edge-
 ## Table des Matières
 
 1. [Séquence de Trading Détaillée](séquence-trading.md)
+2. [Maquette](../maquette/latest/index.html)
 
 
 ---
