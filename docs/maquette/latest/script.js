@@ -1,37 +1,17 @@
-// Contenu correspondant à chaque section
-const contentMap = {
-    tableauDeBord: {
-        title: "Tableau de Bord",
-        description: "Vue d'ensemble des performances de trading avec accès rapide aux sessions actives ou historiques."
-    },
-    marche: {
-        title: "Ciblage des Marchés",
-        description: "Sélectionner les instruments financiers pour initier une session de trading. Affiche les indicateurs de marché, filtres de recherche, et graphiques de tendances."
-    },
-    sessions: {
-        title: "Gestion des Sessions",
-        description: "Options de gestion des sessions : liste des sessions en cours, nouvelle session, et historique des sessions terminées."
-    },
-    strategies: {
-        title: "Présentation des Stratégies",
-        description: "Permet au trader de consulter et analyser les stratégies disponibles pour optimiser sa performance."
-    },
-    social: {
-        title: "Écran Social",
-        description: "Consulter les informations de sessions partagées anonymement avec des insights clés pour les utilisateurs."
-    }
-};
+// Fonction pour charger le contenu HTML dans main-content
+function loadContent(file) {
+    console.log("Chargement du fichier :", file); // Vérification
 
-// Fonction pour mettre à jour le contenu principal en fonction de l'entrée de menu cliquée
-function updateMainContent(section) {
-    const content = contentMap[section];
-    const mainContent = document.getElementById("main-content");
+    fetch(file)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("main-content").innerHTML = data;
 
-    // Mettre à jour le titre et la description dans le main content
-    mainContent.innerHTML = `<h2>${content.title}</h2><p>${content.description}</p>`;
-
-    // Mettre à jour le breadcrumb pour commencer par le nom de l'entrée de menu
-    document.getElementById("breadcrumb").innerHTML = `<p>${content.title}</p>`;
+            // Met à jour le breadcrumb avec le nom du fichier sans extension
+            const sectionName = file.replace('.html', '').replace(/([A-Z])/g, ' $1').trim();
+            document.getElementById("breadcrumb").innerHTML = `<p>${sectionName}</p>`;
+        })
+        .catch(error => console.error('Erreur de chargement du contenu:', error));
 }
 
 // Fonction pour basculer le menu
