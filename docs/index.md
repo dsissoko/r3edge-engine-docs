@@ -1,19 +1,35 @@
-# Documentation de r3edge-engine
+# Documentation du Projet
 
-Bienvenue dans la documentation de **r3edge-engine**, le moteur de trading algorithmique de la plateforme **r3edge**.
+Bienvenue dans la documentation du projet. Vous trouverez ci-dessous une table des matières regroupant tous les fichiers de documentation :
 
-## Table des Matières
+## Table des matières
 
-1. [Introduction](introduction.md)
-2. [Processus Métier](processus-métier/index.md)
-3. [Architecture](architecture/index.md)
-7. [Index des Guides](guides/index.md) : Accédez à tous les guides utilisateur, développeur et contribution.
-8. [FAQ et Résolution des Problèmes](faq.md)
-9. [Glossaire](glossary.md)
-10. [Annexes](annexes.md)
+1. [Vision et Objectifs](vision-objectifs.md)
+   - Décrit la vision stratégique et les objectifs du projet.
 
----
+2. [Modèles de Données et Processus Métiers](modeles-donnees-processus-metiers.md)
+   - Présente les modèles de données et les processus métiers associés.
 
-© 2024 r3edge. Tous droits réservés.
+3. [Architecture de Solution](architecture-solution.md)
+   - Détaille l'architecture technique et les solutions mises en place.
 
-[![HMM1 Java CI with Gradle](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml/badge.svg?branch=main)](https://github.com/dsissoko/r3edge-engine-docs/actions/workflows/gradle-hmmtest1-build.yml)
+4. [Sécurité](securite.md)
+   - Explique les mesures et stratégies de sécurité.
+
+5. [Services Backend](services-backend.md)
+   - Documente les services backend, leurs rôles et interactions.
+
+6. [Frontend](frontend.md)
+   - Décrit les aspects frontend, y compris l'expérience utilisateur (UX).
+
+7. [Exploitation et Maintenance](exploitation-maintenance.md)
+   - Concerne la gestion opérationnelle et la maintenance du projet.
+
+8. [Changelog](CHANGELOG.md)
+   - Journal des modifications apportées au projet.
+
+9. [Références](REFERENCES.md)
+   - Liste des ressources et références externes utilisées.
+
+10. [README](../README.md)
+    - Résumé général du projet, souvent le point d'entrée pour les contributeurs.
