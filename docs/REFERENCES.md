@@ -45,6 +45,8 @@ Ce document recense les principales ressources documentaires, livres, articles, 
   - Lien : [martinfowler.com](https://martinfowler.com/)
 - **Gestion des Données dans les Systèmes Distribués** par Jay Kreps
   - Lien : [Confluent Blog](https://www.confluent.io/blog/)
+- **Architecture de Microservices avec Java Spring Boot et Spring Cloud** par Cursa
+  - Lien : [Cursa](https://cursa.app/fr/page/architecture-de-microservices-avec-java-spring-boot-et-spring-cloud-pour-le-developpement-de-microservices)
 
 ---
 
