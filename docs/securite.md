@@ -43,6 +43,12 @@ Ce document décrit les mesures et stratégies de sécurité mises en œuvre pou
 
 ---
 
+## Sécurisation des microservices
+- La sécurisation des microservices repose sur des principes fondamentaux, tels que la limitation des privilèges, le chiffrement des communications, et la gestion centralisée des accès et des secrets.
+- Voir le détail à la page [Sécurisation des Microservices](securisation-microservices.md)
+
+---
+
 ## Protection des Données
 - **Chiffrement des données sensibles** au repos (PostgreSQL, fichiers de configuration).
 - Sauvegardes régulières avec tests de restauration.
