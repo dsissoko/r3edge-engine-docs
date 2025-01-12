@@ -30,7 +30,7 @@ Ce document décrit l'architecture technique du projet ainsi que les solutions m
 |                  | Internet           | Grafana               | Visualisation des métriques et logs. Instance PaaS disponible pour aspects applicatifs.        | TODO   |
 |                  | Internet           | Supabase              | Fournit une API REST pour PostgreSQL, gestion temps réel via WebSockets. Intégration à finaliser. | TODO   |
 |                  | Internet           | Auth0                 | Gestion centralisée des utilisateurs, authentification et sécurité. SaaS configuré et opérationnel. | DONE   |
-|                  | Internet           | PostgreSQL            | Base de données relationnelle en PaaS, haute disponibilité et sauvegardes gérées. Configuration réseau requise. | TODO   |
+|                  | Internet           | PostgreSQL/TimeScaleDB            | Base de données relationnelle en PaaS, haute disponibilité et sauvegardes gérées. L'addon TimeScaleDB optimise les données temporelles Configuration réseau requise. | TODO   |
 |                  | Internet           | Kafka                 | Messagerie distribuée en PaaS, hébergée chez Confluent.io ou Redpanda. Permet la gestion des événements pour les microservices. | TODO   |
 |                  | Internet           | GitHub                | Référentiel Git utilisé pour GitOps avec Flux. Centralise les configurations.                 | DONE   |
 | Applicative      | Cluster Kubernetes | r3edge-engine         | Application principale opérée dans Kubernetes. Intégration et déploiement à venir.            | TODO   |
