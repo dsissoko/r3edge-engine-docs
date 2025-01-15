@@ -27,6 +27,7 @@ Elle se compose des éléments principaux suivants :
 Cette structure offre une navigation intuitive et une présentation claire des informations essentielles pour les utilisateurs de la plateforme.
 
 ## Outils Cibles
+Il faut faire un choix parmi les outils suivants:
 
 | Solution                         | API REST | WebSockets          | Kafka (intermédiaire) | Avantages clés                                                                                     | Inconvénients                                                                                           |
 |----------------------------------|----------|---------------------|--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|

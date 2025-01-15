@@ -6,7 +6,7 @@ last_updated: 2025-01-10
 
 # Architecture de Solution
 
-Ce document décrit l'architecture technique du projet ainsi que les solutions mises en place pour répondre aux besoins.
+Ce document décrit l'architecture de solution. Il couvre, vue d'avion, les aspects infrastructure, réseau et logiciels.
 
 ---
 

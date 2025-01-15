@@ -10,7 +10,8 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 ---
 
 ## Table des matières
-- [VueDensemble](#vuedensemble)
+- [Quelques définitions](#quelques-définitions)
+- [Communication interservices](#communication-interservices)
 - [SessionManager](#sessionmanager)
 - [StrategyExecutor](#strategyexecutor)
 - [OrderAndPositionTracker](#orderandpositiontracker)
@@ -23,9 +24,10 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 
 ---
 
-## VueDensemble
+## Quelques définitions
 Un service central est unique dans le système et non multipliable fonctionnellement, tandis qu'un service factorisable peut être répliqué par besoin fonctionnel, comme par plateforme ou stratégie.
-Voici un tableau résumant les microservices, leurs rôles, et les méthodes de scalabilité mises en place.
+Chaque service fait l'objet d'une stratégie de scalabilité horizontale adpatée.
+Voici un tableau résumant les stratégies de scalabilité et un tableau listant les services backend de r3edge.
 
 ### Tableau des stratégies de scalabilité horizontale:
 
@@ -49,6 +51,9 @@ Voici un tableau résumant les microservices, leurs rôles, et les méthodes de 
 | **NotificationService (Central)** | Envoie des notifications ou alertes via différents canaux.             | Partitionnement des messages par type ou canal.               |
 | **BacktestService (Central)**  | Exécute des simulations de stratégies à partir de données historiques.   | File de tâches distribuées pour répartir les backtests.       |
 | **MonitoringService (Central)** | Supervise la santé des microservices et des flux de données.             | Leader election ou partitionnement selon les métriques.       |
+
+## Communication interservices
+Dans l'architecture de r3edge, les communications entre les microservices backend sont gérées directement, sans passer par l'API Gateway (Traefik). Cette approche vise à optimiser les flux internes et à alléger la charge de la gateway, qui est exclusivement dédiée aux interactions avec les clients externes. Les services échangent principalement via des API REST internes, des topics Kafka, ou d'autres mécanismes asynchrones, en fonction de leurs besoins fonctionnels et de scalabilité.
 
 ## SessionManager
 - **Fonction** : Gère les sessions de trading : création, démarrage, pause, suppression.

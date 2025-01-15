@@ -11,7 +11,7 @@ Bienvenue dans la documentation du projet. Vous trouverez ci-dessous une table d
    - Présente les modèles de données et les processus métiers associés.
 
 3. [Architecture de Solution](architecture-solution.md)
-   - Détaille l'architecture technique et les solutions mises en place.
+   - Présente l'architecture des solutions infrastrucure, réseau et logicielles.
 
 4. [Sécurité](securite.md)
    - Explique les mesures et stratégies de sécurité.
@@ -31,5 +31,3 @@ Bienvenue dans la documentation du projet. Vous trouverez ci-dessous une table d
 9. [Références](REFERENCES.md)
    - Liste des ressources et références externes utilisées.
 
-10. [README](../README.md)
-    - Résumé général du projet, souvent le point d'entrée pour les contributeurs.
