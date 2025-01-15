@@ -6,12 +6,15 @@ last_updated: 2025-01-12
 
 # Services Backend
 
-L'architecture de r3edge repose sur plusieurs microservices bien définis, chacun ayant un rôle spécifique et des méthodes adaptées pour assurer leur scalabilité horizontale.
+L'architecture de r3edge repose sur plusieurs microservices bien définis, chacun ayant un rôle spécifique pour répondre aux besoins du projet.
+
 ---
 
 ## Table des matières
 - [Quelques définitions](#quelques-définitions)
+- [Exposition des services](#exposition-des-services)
 - [Communication interservices](#communication-interservices)
+- [TemplateService](#templateservice)
 - [SessionManager](#sessionmanager)
 - [StrategyExecutor](#strategyexecutor)
 - [OrderAndPositionTracker](#orderandpositiontracker)
@@ -21,16 +24,69 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 - [NotificationService](#notificationservice)
 - [BacktestService](#backtestservice)
 - [MonitoringService](#monitoringservice)
+- [Stratégies de Scaling Horizontal](#strategies-de-scaling-horizontal)
 
 ---
 
 ## Quelques définitions
 Un service central est unique dans le système et non multipliable fonctionnellement, tandis qu'un service factorisable peut être répliqué par besoin fonctionnel, comme par plateforme ou stratégie.
-Chaque service fait l'objet d'une stratégie de scalabilité horizontale adpatée.
-Voici un tableau résumant les stratégies de scalabilité et un tableau listant les services backend de r3edge.
 
-### Tableau des stratégies de scalabilité horizontale:
+## Exposition des services
+Traefik, en tant qu'API Gateway, joue un rôle clé en exposant à l'externe une API unifiée pour l'ensemble des microservices de r3edge-engine. Cette API permet aux clients externes d'interagir de manière centralisée avec les différents services backend, sans avoir besoin de connaître leur architecture interne. Les avantages principaux de cette exposition incluent :
 
+- **Unification** : Un point d'entrée unique pour toutes les requêtes externes.
+- **Sécurité** : Gestion des authentifications, autorisations et certificats SSL pour protéger les échanges.
+- **Flexibilité** : Possibilité de configurer des règles de routage pour diriger les requêtes vers les microservices appropriés.
+- **Observabilité** : Traefik fournit des outils pour surveiller et diagnostiquer les performances des API exposées.
+
+## Communication interservices
+Dans l'architecture de r3edge, les communications entre les microservices backend sont gérées directement, sans passer par l'API Gateway (Traefik). Cette approche vise à optimiser les flux internes et à alléger la charge de la gateway, qui est exclusivement dédiée aux interactions avec les clients externes. Les services échangent principalement via des API REST internes, des topics Kafka, ou d'autres mécanismes asynchrones.
+
+## TemplateService
+- **Rôle** : Service template à personnaliser pour les futurs microservices.
+- **Détail** : [Voir la page dédiée](TemplateService.md)
+
+## SessionManager
+- **Rôle** : Gère les sessions de trading : création, démarrage, pause, suppression.
+- **Détail** : [Voir la page dédiée](SessionManager.md)
+
+## StrategyExecutor
+- **Rôle** : Consomme les topics de session pour exécuter les stratégies définies.
+- **Détail** : [Voir la page dédiée](StrategyExecutor.md)
+
+## OrderAndPositionTracker
+- **Rôle** : Suit les ordres placés et les positions associées.
+- **Détail** : [Voir la page dédiée](OrderAndPositionTracker.md)
+
+## RiskManager
+- **Rôle** : Valide et dimensionne les ordres ; ajuste les positions.
+- **Détail** : [Voir la page dédiée](RiskManager.md)
+
+## DataCollect
+- **Rôle** : Collecte les données de marché en temps réel depuis les plateformes.
+- **Détail** : [Voir la page dédiée](DataCollect.md)
+
+## MarketDataService
+- **Rôle** : Traite et agrège les données de marché pour alimenter un cache distribué.
+- **Détail** : [Voir la page dédiée](MarketDataService.md)
+
+## NotificationService
+- **Rôle** : Envoie des notifications ou alertes via différents canaux.
+- **Détail** : [Voir la page dédiée](NotificationService.md)
+
+## BacktestService
+- **Rôle** : Exécute des simulations de stratégies à partir de données historiques.
+- **Détail** : [Voir la page dédiée](BacktestService.md)
+
+## MonitoringService
+- **Rôle** : Supervise la santé des microservices et des flux de données.
+- **Détail** : [Voir la page dédiée](MonitoringService.md)
+
+---
+
+## Stratégies de Scaling Horizontal
+
+### Tableau des stratégies de scaling horizontal
 | **Nom de la Stratégie**         | **Description**                                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------------------|
 | **Load Balancing**              | Répartit les requêtes entrantes entre plusieurs instances en temps réel, souvent pour des API ou HTTP. |
@@ -38,58 +94,18 @@ Voici un tableau résumant les stratégies de scalabilité et un tableau listant
 | **Partitionnement des Données** | Divise les données en sous-ensembles (partitions) basés sur une clé pour optimiser leur stockage et traitement. |
 | **Leader Election**             | Élit dynamiquement un leader unique parmi plusieurs instances pour exécuter des tâches critiques ou coordonner. |
 
-### Tableau des microservices r3edge
-
-| **Microservice (Type)**        | **Rôle**                                                                 | **Scalabilité Horizontale**                                    |
-|--------------------------------|--------------------------------------------------------------------------|----------------------------------------------------------------|
-| **SessionManager (Central)**   | Gère les sessions de trading : création, démarrage, pause, suppression.  | Load balancing pour traiter les commandes.                    |
-| **StrategyExecutor (Factorisable)** | Consomme les topics de session pour exécuter les stratégies définies.    | Leader election via les consumer groups Kafka.                |
-| **OrderAndPositionTracker (Central)** | Suit les ordres placés et les positions associées de façon stateless.   | File de tâches distribuées pour traiter les ordres placés.    |
-| **RiskManager (Central)**      | Valide et dimensionne les ordres ; ajuste les positions de manière stateless. | File de tâches distribuées pour valider les ordres.           |
-| **DataCollect (Factorisable)** | Collecte les données de marché en temps réel depuis les plateformes.     | Partitionnement des données par plateforme ou par marché.     |
-| **MarketDataService (Central)**| Traite et agrège les données de marché pour alimenter un cache distribué. | Load balancing pour gérer les requêtes client.                |
-| **NotificationService (Central)** | Envoie des notifications ou alertes via différents canaux.             | Partitionnement des messages par type ou canal.               |
-| **BacktestService (Central)**  | Exécute des simulations de stratégies à partir de données historiques.   | File de tâches distribuées pour répartir les backtests.       |
-| **MonitoringService (Central)** | Supervise la santé des microservices et des flux de données.             | Leader election ou partitionnement selon les métriques.       |
-
-## Communication interservices
-Dans l'architecture de r3edge, les communications entre les microservices backend sont gérées directement, sans passer par l'API Gateway (Traefik). Cette approche vise à optimiser les flux internes et à alléger la charge de la gateway, qui est exclusivement dédiée aux interactions avec les clients externes. Les services échangent principalement via des API REST internes, des topics Kafka, ou d'autres mécanismes asynchrones, en fonction de leurs besoins fonctionnels et de scalabilité.
-
-## SessionManager
-- **Fonction** : Gère les sessions de trading : création, démarrage, pause, suppression.
-- **Scalabilité** : Load balancing pour traiter les commandes.
-
-## StrategyExecutor
-- **Fonction** : Consomme les topics de session pour exécuter les stratégies définies.
-- **Scalabilité** : Leader election via les consumer groups Kafka.
-
-## OrderAndPositionTracker
-- **Fonction** : Suit les ordres placés et les positions associées de façon stateless.
-- **Scalabilité** : File de tâches distribuées pour traiter les ordres placés.
-
-## RiskManager
-- **Fonction** : Valide et dimensionne les ordres ; ajuste les positions de manière stateless.
-- **Scalabilité** : File de tâches distribuées pour valider les ordres.
-
-## DataCollect
-- **Fonction** : Collecte les données de marché en temps réel depuis les plateformes.
-- **Scalabilité** : Partitionnement des données par plateforme ou par marché.
-
-## MarketDataService
-- **Fonction** : Traite et agrège les données de marché pour alimenter un cache distribué.
-- **Scalabilité** : Load balancing pour gérer les requêtes client.
-
-## NotificationService
-- **Fonction** : Envoie des notifications ou alertes via différents canaux.
-- **Scalabilité** : Partitionnement des messages par type ou canal.
-
-## BacktestService
-- **Fonction** : Exécute des simulations de stratégies à partir de données historiques.
-- **Scalabilité** : File de tâches distribuées pour répartir les backtests.
-
-## MonitoringService
-- **Fonction** : Supervise la santé des microservices et des flux de données.
-- **Scalabilité** : Leader election ou partitionnement selon les métriques.
+### Tableau des microservices et choix des stratégies
+| **Microservice (Type)**        | **Rôle**                                                                 | **Stratégie de Scaling**                                    |
+|--------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------|
+| **SessionManager (Central)**   | Gère les sessions de trading : création, démarrage, pause, suppression.  | Load Balancing                                             |
+| **StrategyExecutor (Factorisable)** | Consomme les topics de session pour exécuter les stratégies définies.    | Leader Election via les consumer groups Kafka              |
+| **OrderAndPositionTracker (Central)** | Suit les ordres placés et les positions associées de façon stateless.   | File de Tâches Distribuée                                  |
+| **RiskManager (Central)**      | Valide et dimensionne les ordres ; ajuste les positions.                 | File de Tâches Distribuée                                  |
+| **DataCollect (Factorisable)** | Collecte les données de marché en temps réel depuis les plateformes.     | Partitionnement des Données                                |
+| **MarketDataService (Central)**| Traite et agrège les données de marché pour alimenter un cache distribué. | Load Balancing                                             |
+| **NotificationService (Central)** | Envoie des notifications ou alertes via différents canaux.             | Partitionnement des Messages                               |
+| **BacktestService (Central)**  | Exécute des simulations de stratégies à partir de données historiques.   | File de Tâches Distribée                                  |
+| **MonitoringService (Central)** | Supervise la santé des microservices et des flux de données.             | Leader Election ou Partitionnement                         |
 
 ---
 
