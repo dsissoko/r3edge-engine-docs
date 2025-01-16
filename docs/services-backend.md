@@ -24,7 +24,7 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 - [NotificationService](#notificationservice)
 - [BacktestService](#backtestservice)
 - [MonitoringService](#monitoringservice)
-- [Stratégies de Scaling Horizontal](#strategies-de-scaling-horizontal)
+- [Stratégies de Scaling Horizontal](#stratégies-de-scaling-horizontal)
 
 ---
 
