@@ -14,13 +14,13 @@ Ce document présente le microservice **[Nom du Microservice]**, son rôle, son 
 
 ## Table des matières
 
-- [Rôle du service](#role-du-service)
-- [Fonctionnalités clés](#fonctionnalites-cles)
-- [Données manipulées](#donnees-manipulees)
-- [Observabilité et Monitoring](#observabilite-et-monitoring)
-- [Stratégie de Scalabilité](#strategie-de-scalabilite)
-- [Ressources complémentaires](#ressources-complementaires)
-- [Accès au Code](#acces-au-code)
+- [Rôle du service](#rôle-du-service)
+- [Fonctionnalités clés](#fonctionnalités-clés)
+- [Données manipulées](#données-manipulées)
+- [Observabilité et Monitoring](#observabilité-et-monitoring)
+- [Stratégie de Scalabilité](#stratégie-de-scalabilité)
+- [Ressources complémentaires](#ressources-complémentaires)
+- [Accès au Code](#accès-au-code)
 - [Liens de navigation](#liens-de-navigation)
 
 ---
