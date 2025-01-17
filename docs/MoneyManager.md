@@ -1,14 +1,14 @@
 ---
-title: RiskManager
-description: Détails sur le microservice RiskManager utilisé dans r3edge-engine.
+title: MoneyManager
+description: Détails sur le microservice MoneyManager utilisé dans r3edge-engine.
 last_updated: [Date de dernière mise à jour]
 ---
 
-# RiskManager
+# MoneyManager
 
 ## Introduction
 
-Ce document présente le microservice **RiskManager**, son rôle, son fonctionnement, et ses interactions avec les autres composants de l'architecture r3edge-engine.
+Ce document présente le microservice **MoneyManager**, son rôle, son fonctionnement, et ses interactions avec les autres composants de l'architecture r3edge-engine.
 
 ---
 
@@ -27,7 +27,7 @@ Ce document présente le microservice **RiskManager**, son rôle, son fonctionne
 
 ## Rôle du service
 
-**RiskManager** a pour rôle principal de calculer les positions, les niveaux de stop-loss et de take-profit en suivant des règles simples de gestion de capital.
+**MoneyManager** a pour rôle principal de calculer les positions, les niveaux de stop-loss et de take-profit en suivant des règles simples de gestion de capital.
 
 ---
 
@@ -47,9 +47,9 @@ Ce tableau décrit les données que le service manipule, y compris leurs sources
 
 | **Nom de la donnée**      | **Source**             | **Destination**        | **Commentaires**                                  |
 | ------------------------- | --------------------- | --------------------- | ------------------------------------------------- |
-| Signal qualifié          | StrategyExecutor      | RiskManager          | Signal d'entrée déclencheur pour les calculs d'ordre. |
-| Paramètres de risque     | SessionManager        | RiskManager          | Paramètres configurés pour la gestion du risque et du capital. |
-| Ordres calculés          | RiskManager          | OrderManager          | Ordres avec tailles, stop-loss et take-profit calculés. |
+| Signal qualifié          | StrategyExecutor      | MoneyManager          | Signal d'entrée déclencheur pour les calculs d'ordre. |
+| Paramètres de risque     | SessionManager        | MoneyManager          | Paramètres configurés pour la gestion du risque et du capital. |
+| Ordres calculés          | MoneyManager          | OrderManager          | Ordres avec tailles, stop-loss et take-profit calculés. |
 
 ---
 
@@ -61,7 +61,7 @@ TODO : Décrire les métriques surveillées, les alertes configurées, et les ou
 
 ## Stratégie de Scalabilité
 
-La scalabilité du microservice **RiskManager** repose sur plusieurs approches adaptées à l'environnement distribué :
+La scalabilité du microservice **MoneyManager** repose sur plusieurs approches adaptées à l'environnement distribué :
 
 1. **Scalabilité horizontale** :
    - Multiplication des instances du service pour gérer un volume élevé de signaux et d'ordres simultanés.
@@ -72,7 +72,7 @@ La scalabilité du microservice **RiskManager** repose sur plusieurs approches a
 
 ## Ressources complémentaires
 
-Pour en savoir plus sur les principes de gestion du capital et de dimensionnement des positions utilisés dans le `RiskManager`, voici quelques ressources utiles : 
+Pour en savoir plus sur les principes de gestion du capital et de dimensionnement des positions utilisés dans le `MoneyManager`, voici quelques ressources utiles : 
 
 - [Trade with the Pros - Position Sizing](https://tradewiththepros.com/position-sizing/) : Un guide détaillé sur le dimensionnement des positions et les ratios risque/rendement.
 - [Strike Money - Position Sizing in Stock Markets](https://www.strike.money/stock-market/position-sizing) : Un article illustrant les différentes méthodes de calcul de la taille des positions.
