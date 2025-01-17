@@ -1,7 +1,7 @@
 ---
 title: Services Backend
 description: Document présentant les services fonctionnels backend du projet.
-last_updated: 2025-01-12
+last_updated: 2025-01-17
 ---
 
 # Services Backend
@@ -14,17 +14,10 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 - [Quelques définitions](#quelques-définitions)
 - [Exposition des services](#exposition-des-services)
 - [Communication interservices](#communication-interservices)
-- [TemplateService](#templateservice)
-- [SessionManager](#sessionmanager)
-- [StrategyExecutor](#strategyexecutor)
-- [OrderAndPositionTracker](#orderandpositiontracker)
-- [RiskManager](#riskmanager)
-- [DataCollect](#datacollect)
-- [MarketDataService](#marketdataservice)
-- [NotificationService](#notificationservice)
-- [BacktestService](#backtestservice)
-- [MonitoringService](#monitoringservice)
+- [Liste des services](#liste-des-services)
 - [Stratégies de Scaling Horizontal](#stratégies-de-scaling-horizontal)
+- [Partitionnement des Topics Kafka](#partitionnement-des-topics-kafka)
+- [Filtrage et Émission des Topics](#filtrage-et-emission-des-topics)
 
 ---
 
@@ -36,18 +29,34 @@ Un service central est unique dans le système et non multipliable fonctionnelle
 
 ## Exposition des services
 
-Traefik, en tant qu'API Gateway, joue un rôle clé en exposant à l'externe une API unifiée pour l'ensemble des microservices de r3edge-engine. Cette API permet aux clients externes d'interagir de manière centralisée avec les différents services backend, sans avoir besoin de connaître leur architecture interne. Les avantages principaux de cette exposition incluent :
-
-- **Unification** : Un point d'entrée unique pour toutes les requêtes externes.
-- **Sécurité** : Gestion des authentifications, autorisations et certificats SSL pour protéger les échanges.
-- **Flexibilité** : Possibilité de configurer des règles de routage pour diriger les requêtes vers les microservices appropriés.
-- **Observabilité** : Traefik fournit des outils pour surveiller et diagnostiquer les performances des API exposées.
+Traefik, en tant qu'API Gateway, joue un rôle clé en exposant à l'externe une API unifiée pour l'ensemble des microservices de r3edge-engine. Cette API permet aux clients externes d'interagir de manière centralisée avec les différents services backend, sans avoir besoin de connaître leur architecture interne.
 
 ---
 
 ## Communication interservices
 
-Dans l'architecture de r3edge, les communications entre les microservices backend sont gérées directement, sans passer par l'API Gateway (Traefik). Cette approche vise à optimiser les flux internes et à alléger la charge de la gateway, qui est exclusivement dédiée aux interactions avec les clients externes. Les services échangent principalement via des API REST internes, des topics Kafka, ou d'autres mécanismes asynchrones.
+Dans l'architecture de r3edge, les communications entre les microservices backend sont gérées directement, sans passer par l'API Gateway (Traefik). Les services échangent principalement via des API REST internes, des topics Kafka, ou d'autres mécanismes asynchrones.
+
+### Topics Kafka
+
+Les topics Kafka sont le principal mécanisme d'échange asynchrone entre les microservices. Chaque topic est partitionné et consommé via des consumer groups, garantissant l'isolation et la scalabilité des services.
+
+Liste des principaux topics et leur partitionnement :
+
+| **Topic**          | **Clé de Partition**  | **Données Transportées**         | **Consommateurs**       |
+|---------------------|-----------------------|------------------------------------|--------------------------|
+| `marketdata`        | Aucun (broadcast)     | OHLCV brut                        | AnyService               |
+| `strategiesdata`    | `strategyId`         | OHLCV filtré pour les stratégies  | StrategyExecutor         |
+| `sessionsrequest`   | `sessionId`          | Demandes de suivi de position     | PositionTracker          |
+| `signals`           | Aucun (broadcast)    | Signaux non filtrés               | AnyService               |
+| `raworders`         | `orderId`            | Ordres bruts sans quantité        | MoneyManager             |
+| `orders`            | `orderId`            | Ordres complets prêts à exécuter  | OrderManager             |
+
+### Diagramme des interactions
+
+Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
+
+![Diagramme des services backend](Services_Backend_Diagram.png)
 
 ---
 
@@ -57,68 +66,92 @@ Dans l'architecture de r3edge, les communications entre les microservices backen
 - **Rôle** : Service template à personnaliser pour les futurs microservices.
 - **Détail** : [Voir la page dédiée](TemplateService.md)
 
-### SessionManager
-- **Rôle** : Gère les sessions de trading : création, démarrage, pause, suppression.
-- **Détail** : [Voir la page dédiée](SessionManager.md)
+### DataCollect
+- **Rôle** : Collecte les données de marché en temps réel depuis les plateformes.
+- **Filtrage des données** :
+  - DataCollect applique des filtres dynamiques en fonction des stratégies et des sessions actives, garantissant que seuls les messages pertinents sont envoyés sur les topics Kafka.
+  - Exemple de filtres :
+    - **Timeframes** (à partir des stratégies actives)
+    - **Marchés** (ex : BTC/USD, CAC40)
+    - **Plateformes** (ex : kraken, binance)
+  - **Topic bénéficiant du filtrage** : `strategiesdata`.
+- **Détail** : [Voir la page dédiée](DataCollect.md)
 
 ### StrategyExecutor
 - **Rôle** : Consomme les topics de session pour exécuter les stratégies définies.
+- **Organisation des consumer groups** :
+  - Les instances de StrategyExecutor rejoignent des consumer groups correspondant aux stratégies qu'elles gèrent.
+  - Une instance peut appartenir à plusieurs consumer groups si elle gère plusieurs stratégies (ex : `strategy1-group`, `strategy3-group`).
+- **Filtrage des signaux** :
+  - StrategyExecutor filtre les signaux générés pour ne publier que ceux pertinents aux sessions actives.
+  - **Topic bénéficiant du filtrage** : `sessionsrequest`.
 - **Détail** : [Voir la page dédiée](StrategyExecutor.md)
 
-### OrderAndPositionTracker
-- **Rôle** : Suit les ordres placés et les positions associées.
-- **Détail** : [Voir la page dédiée](OrderAndPositionTracker.md)
+### SessionManager
+- **Rôle** : Gère les sessions de trading : création, démarrage, pause, suppression.
+- **Type** : REST Controller.
+- **Responsabilités principales** :
+  - Reçoit et traite les demandes des utilisateurs via une API REST pour gérer les sessions.
+  - Met à jour les informations des sessions (état, configuration, etc.) dans la base de données.
+  - Assure la persistance des états des sessions actives pour permettre leur utilisation par d'autres services, comme DataCollect et StrategyExecutor.
+- **Détail** : [Voir la page dédiée](SessionManager.md)
 
-### RiskManager
-- **Rôle** : Valide et dimensionne les ordres ; ajuste les positions.
-- **Détail** : [Voir la page dédiée](RiskManager.md)
+### PositionTracker
+- **Rôle** : Suit les ordres placés et les positions associées de manière stateless.
+- **Consommation du topic `sessionsrequest`** :
+  - PositionTracker consomme les messages de suivi de session filtrés par DataCollect et StrategyExecutor.
+  - Scalabilité assurée via un consumer group avec partitionnement par `sessionId`.
+- **Détail** : [Voir la page dédiée](PositionTracker.md)
 
-### DataCollect
-- **Rôle** : Collecte les données de marché en temps réel depuis les plateformes.
-- **Détail** : [Voir la page dédiée](DataCollect.md)
-
-### MarketDataService
-- **Rôle** : Traite et agrège les données de marché pour alimenter un cache distribué.
-- **Détail** : [Voir la page dédiée](MarketDataService.md)
-
-### NotificationService
-- **Rôle** : Envoie des notifications ou alertes via différents canaux.
-- **Détail** : [Voir la page dédiée](NotificationService.md)
-
-### BacktestService
-- **Rôle** : Exécute des simulations de stratégies à partir de données historiques.
-- **Détail** : [Voir la page dédiée](BacktestService.md)
-
-### MonitoringService
-- **Rôle** : Supervise la santé des microservices et des flux de données.
-- **Détail** : [Voir la page dédiée](MonitoringService.md)
+### MoneyManager
+- **Rôle** : Ajuste les quantités d'ordres sur la base des données de risque et de portefeuille.
+- **Interaction avec Kafka** :
+  - Consomme le topic `raworders` pour enrichir les ordres.
+  - Publie les ordres complétés sur le topic `orders`.
+- **Détail** : [Voir la page dédiée](MoneyManager.md)
 
 ---
 
 ## Stratégies de Scaling Horizontal
 
-### Tableau des stratégies de scaling horizontal
+### Scaling des services via Kafka
+- Les services utilisent des consumer groups pour scaler horizontalement sans conflit.
+- Chaque topic est partitionné en fonction des clés pertinentes (à définir par service).
 
-| **Nom de la Stratégie**         | **Description**                                                                                 |
-|---------------------------------|-----------------------------------------------------------------------------------------------|
-| **Load Balancing**              | Répartit les requêtes entrantes entre plusieurs instances en temps réel, souvent pour des API ou HTTP. |
-| **File de Tâches Distribuée**   | Distribue des tâches uniques en file d'attente entre plusieurs consommateurs pour un traitement asynchrone. |
-| **Partitionnement des Données** | Divise les données en sous-ensembles (partitions) basés sur une clé pour optimiser leur stockage et traitement. |
-| **Leader Election**             | Élit dynamiquement un leader unique parmi plusieurs instances pour exécuter des tâches critiques ou coordonner. |
+Exemple :
+- **DataCollect** : Partitionnement par `market+symbol+timeframe`.
+- **StrategyExecutor** : Partitionnement par `strategyId`.
+- **SessionManager** : Load Balancing pour traiter les requêtes REST simultanées.
+- **PositionTracker** : Partitionnement par `sessionId`.
+- **MoneyManager** et **OrderManager** : Partitionnement par `orderId`.
 
-### Tableau des microservices et choix des stratégies
+---
 
-| **Microservice (Type)**        | **Rôle**                                                                 | **Stratégie de Scaling**                                    |
-|--------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------|
-| **SessionManager (Central)**   | Gère les sessions de trading : création, démarrage, pause, suppression.  | Load Balancing                                             |
-| **StrategyExecutor (Factorisable)** | Consomme les topics de session pour exécuter les stratégies définies.    | Leader Election via les consumer groups Kafka              |
-| **OrderAndPositionTracker (Central)** | Suit les ordres placés et les positions associées de façon stateless.   | File de Tâches Distribuée                                  |
-| **RiskManager (Central)**      | Valide et dimensionne les ordres ; ajuste les positions.                 | File de Tâches Distribuée                                  |
-| **DataCollect (Factorisable)** | Collecte les données de marché en temps réel depuis les plateformes.     | Partitionnement des Données                                |
-| **MarketDataService (Central)**| Traite et agrège les données de marché pour alimenter un cache distribué. | Load Balancing                                             |
-| **NotificationService (Central)** | Envoie des notifications ou alertes via différents canaux.             | Partitionnement des Messages                               |
-| **BacktestService (Central)**  | Exécute des simulations de stratégies à partir de données historiques.   | File de Tâches Distribuée                                  |
-| **MonitoringService (Central)** | Supervise la santé des microservices et des flux de données.             | Leader Election ou Partitionnement                         |
+## Partitionnement des Topics Kafka
+
+Le tableau suivant synthétise le partitionnement appliqué aux principaux topics :
+
+| **Topic**          | **Clé de Partition**  | **Description**                                                |
+|---------------------|-----------------------|----------------------------------------------------------------|
+| `marketdata`        | Aucun (broadcast)     | Diffusion globale des données OHLCV brutes.                   |
+| `strategiesdata`    | `strategyId`         | Données filtrées pour les stratégies actives.                 |
+| `sessionsrequest`   | `sessionId`          | Demandes de suivi de position pour les sessions actives.       |
+| `signals`           | Aucun (broadcast)    | Signaux non filtrés pour les consommateurs génériques.         |
+| `raworders`         | `orderId`            | Ordres bruts sans quantité.                                   |
+| `orders`            | `orderId`            | Ordres enrichis prêts à être exécutés.                        |
+
+---
+
+## Filtrage et Émission des Topics
+
+### Filtrage dynamique
+Les services émetteurs (DataCollect, StrategyExecutor) appliquent des filtres pour réduire le bruit et garantir la pertinence des messages publiés. 
+
+| **Service**          | **Topic**          | **Critères de Filtrage**                                     |
+|-----------------------|--------------------|--------------------------------------------------------------|
+| **DataCollect**       | `strategiesdata`  | Stratégies actives : timeframe, marché, plateforme.          |
+| **DataCollect**       | `sessionsrequest` | Sessions actives associées aux données collectées.          |
+| **StrategyExecutor**  | `sessionsrequest` | Signaux pertinents pour les sessions actives.               |
 
 ---
 
