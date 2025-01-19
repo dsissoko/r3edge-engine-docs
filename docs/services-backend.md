@@ -58,6 +58,18 @@ Le schéma ci-dessous illustre les interactions principales entre les services b
 
 ![Diagramme des services backend](Services_Backend_Diagram.png)
 
+```mermaid
+graph TB
+  DC[DataCollect] -->|marketdata| SE[StrategyExecutor]
+  DC -->|strategiesdata| SE
+  DC -->|sessionsrequest| PT[PositionTracker]
+  SE -->|sessionsrequest| PT
+  SE -->|signals| NS[NotificationService]
+  PT -->|raworders| MM[MoneyManager]
+  MM -->|orders| OM[OrderManager]
+
+```
+
 ---
 
 ## Liste des services
