@@ -56,19 +56,23 @@ Liste des principaux topics et leur partitionnement :
 
 Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
 
-![Diagramme des services backend](Services_Backend_Diagram.png)
-
 ```mermaid
 graph TB
-  DC[DataCollect] -->|marketdata| SE[StrategyExecutor]
-  DC -->|strategiesdata| SE
-  DC -->|sessionsrequest| PT[PositionTracker]
-  SE -->|sessionsrequest| PT
-  SE -->|signals| NS[NotificationService]
-  PT -->|raworders| MM[MoneyManager]
-  MM -->|orders| OM[OrderManager]
+  User["👤 Utilisateur"] -->|🌐 start, stop, suspend, recover | SM["⚙️ SessionManager"]
+  DC["⚙️ DataCollect"] -->|💬 marketdata | SE["⚙️ StrategyExecutor"]
+  DC -->|💬 strategiesdata | SE
+  DC -->|💬 sessionsrequest | PT["⚙️ PositionTracker"]
+  SE -->|💬 sessionsrequest | PT
+  SE -->|💬 signals | NS["⚙️ NotificationService"]
+  PT -->|💬 raworders | MM["⚙️ MoneyManager"]
+  MM -->|💬 orders | OM["⚙️ OrderManager"]
 
 ```
+
+### Légende
+- 🌐 **Requêtes HTTP** : Interactions entre l’utilisateur et les services.
+- ⚙️ **Services** : Représentation des microservices de l’architecture.
+- 💬 **Topics Kafka** : Canaux d’échange de messages asynchrones entre services.
 
 ---
 
