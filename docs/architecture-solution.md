@@ -20,6 +20,7 @@ Les principes de base:
 - [Environnement de Production](#environnement-de-production)
 - [Environnement de Développement](#environnement-de-développement)
 - [Noms de domaine DNS de la solution](#noms-de-domaine-dns-de-la-solution)
+- [Informations complémentaires](#informations-complémentaires)
 - [À traiter plus tard](#à-traiter-plus-tard)
 
 ## Liste des sous-systèmes
@@ -80,13 +81,15 @@ graph TD
 
 
 Liste des plateformes physiques:
-- Northflank
-- Google cloud platform
-- Oracle Cloud Infrastructure
-- Confluent cloud
-- Github
-- dockerHub
-- Auth0
+- **Northflank** : Hébergeur PaaS pour les microservices en développement et fournisseur du Config Server pour tous les environnements.  
+- **Google Cloud Platform (GCP)** : Fournit l’infrastructure pour Kubernetes, le déploiement en production et les ressources cloud de l’architecture.  
+- **Oracle Cloud Infrastructure (OCI)** : Fournit le PaaS Database et Supabase pour tous les environnements, ainsi que l’hébergement des microservices en développement via Docker.  
+- **Confluent Cloud** : Service PaaS pour Kafka, assurant la gestion des messages et la distinction des environnements via des topics.  
+- **GitHub** : Référentiel Git pour le stockage et la gestion centralisée des configurations et du code source.  
+- **DockerHub** : Registre pour stocker et distribuer les images Docker des microservices.  
+- **Auth0** : Service PaaS pour l’authentification, la gestion des utilisateurs et les habilitations.  
+- **OVH** : Fournit la gestion du domaine `r3edge.com`, des sous-domaines DNS, des boîtes mail et autres services associés.  
+
 
 ```mermaid
 graph TD
@@ -250,6 +253,19 @@ graph TD
   - **Prod** : `r3edge-engine-prod`
   - **Dev** : `r3edge-engine-dev`
 
+## Informations complémentaires
+
+### Outillage
+- [OVHcloud Manager](https://www.ovh.com/manager/#/hub/) : Gestion des domaines et services OVH.  
+- [Let's Encrypt](https://letsencrypt.org/fr/) : Certificats SSL/TLS gratuits.  
+- [Insomnia](https://app.insomnia.rest/app/dashboard/organizations) : Test et gestion des APIs REST.  
+- [JWT.io](https://jwt.io/) : Travail avec les JSON Web Tokens (JWT).
+
+### Plateformes à étudier
+- [Redpanda Documentation](https://docs.redpanda.com/home/) : Documentation pour l'alternative à Kafka.  
+- [RealCloud](https://realcloud.in/) : Plateforme à explorer pour son potentiel dans l'architecture.  
+
+
 ## À traiter plus tard
 
 ### Écarts identifiés sans Kubernetes
@@ -306,10 +322,10 @@ Les appels entre microservices sont gérés directement via des clients HTTP com
 - **WebClient** : Option réactive adaptée pour des besoins asynchrones ou hautement concurrents.  
 L’API Gateway (Traefik) n’est pas utilisée pour les communications internes, car elle est exclusivement réservée aux appels externes.
 
-
 ---
 
 <!-- Pied de page -->
 ## Liens utiles
 - [Retour à la Table des Matières](index.md)
 - [Dépôt principal de la documentation](https://github.com/dsissoko/r3edge-engine-docs)
+
