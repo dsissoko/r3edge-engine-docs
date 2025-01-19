@@ -41,7 +41,7 @@ Dans l'architecture de r3edge, les communications entre les microservices backen
 
 Les topics Kafka sont le principal mécanisme d'échange asynchrone entre les microservices. Chaque topic est partitionné et consommé via des consumer groups, garantissant l'isolation et la scalabilité des services.
 
-Liste des principaux topics et leur partitionnement :
+Liste des principaux topics et leur partitionnement :
 
 | **Topic**          | **Clé de Partition**  | **Données Transportées**         | **Consommateurs**       |
 |---------------------|-----------------------|------------------------------------|--------------------------|
@@ -54,7 +54,7 @@ Liste des principaux topics et leur partitionnement :
 
 ### Diagramme des interactions
 
-Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
+Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
 
 ![Diagramme des services backend](Services_Backend_Diagram.png)
 
@@ -62,53 +62,103 @@ Le schéma ci-dessous illustre les interactions principales entre les services b
 
 ## Liste des services
 
-### TemplateService
-- **Rôle** : Service template à personnaliser pour les futurs microservices.
-- **Détail** : [Voir la page dédiée](TemplateService.md)
-
 ### DataCollect
-- **Rôle** : Collecte les données de marché en temps réel depuis les plateformes.
-- **Filtrage des données** :
-  - DataCollect applique des filtres dynamiques en fonction des stratégies et des sessions actives, garantissant que seuls les messages pertinents sont envoyés sur les topics Kafka.
-  - Exemple de filtres :
-    - **Timeframes** (à partir des stratégies actives)
-    - **Marchés** (ex : BTC/USD, CAC40)
-    - **Plateformes** (ex : kraken, binance)
-  - **Topic bénéficiant du filtrage** : `strategiesdata`.
+- **Rôle** : Collecte des données de marché en temps réel depuis des APIs externes.
+- **Interactions** :
+  - **Entrées** : APIs des plateformes de trading.
+  - **Sorties** :
+    - `marketdata` : Données OHLCV brutes.
+    - `strategiesdata` : Données filtrées pour les stratégies actives.
+    - `sessionsrequest` : Demandes de suivi de position.
+- **Comment le service peut scaler ?** :
+  - Scaling horizontal avec Kubernetes : chaque instance collecte un sous-ensemble défini de marchés, actifs et timeframes.
+  - Réattribution automatique des tâches via une table centralisée qui distribue dynamiquement les workloads.
+  - **Émetteur lié** : DataCollect filtre les OHLCV pour `strategiesdata` à partir des informations de filtre publiées par les instances actives de StrategyExecutor.
 - **Détail** : [Voir la page dédiée](DataCollect.md)
 
-### StrategyExecutor
-- **Rôle** : Consomme les topics de session pour exécuter les stratégies définies.
-- **Organisation des consumer groups** :
-  - Les instances de StrategyExecutor rejoignent des consumer groups correspondant aux stratégies qu'elles gèrent.
-  - Une instance peut appartenir à plusieurs consumer groups si elle gère plusieurs stratégies (ex : `strategy1-group`, `strategy3-group`).
-- **Filtrage des signaux** :
-  - StrategyExecutor filtre les signaux générés pour ne publier que ceux pertinents aux sessions actives.
-  - **Topic bénéficiant du filtrage** : `sessionsrequest`.
-- **Détail** : [Voir la page dédiée](StrategyExecutor.md)
+---
 
 ### SessionManager
-- **Rôle** : Gère les sessions de trading : création, démarrage, pause, suppression.
-- **Type** : REST Controller.
-- **Responsabilités principales** :
-  - Reçoit et traite les demandes des utilisateurs via une API REST pour gérer les sessions.
-  - Met à jour les informations des sessions (état, configuration, etc.) dans la base de données.
-  - Assure la persistance des états des sessions actives pour permettre leur utilisation par d'autres services, comme DataCollect et StrategyExecutor.
+- **Rôle** : Gestion des sessions de trading (création, démarrage, mise en pause, suppression).
+- **Interactions** :
+  - **Entrées** : Commandes utilisateur (start, stop, pause).
+  - **Sorties** : Mise à jour des sessions dans la base de données.
+- **Comment le service peut scaler ?** :
+  - Load balancing entre instances via Kubernetes et un service REST exposé.
+  - **Émetteur lié** : Les modifications des sessions sont propagées via la base de données, et les services consommateurs interrogent ces informations en temps réel.
 - **Détail** : [Voir la page dédiée](SessionManager.md)
 
+---
+
+### StrategyExecutor
+- **Rôle** : Exécution des stratégies de trading définies.
+- **Interactions** :
+  - **Entrées** :
+    - `strategiesdata` : Données de marché pertinentes.
+    - `signals` : Signaux non filtrés.
+  - **Sorties** :
+    - `sessionsrequest` : Demandes de suivi de position.
+    - `signals` : Signaux filtrés pour les sessions actives.
+- **Comment le service peut scaler ?** :
+  - Partitionnement Kafka par `strategyId` pour distribuer la charge entre instances.
+  - Scaling horizontal des instances via Kubernetes.
+  - **Émetteur lié** : StrategyExecutor envoie des signaux dans `sessionsrequest` lorsqu'ils correspondent à des sessions actives spécifiques.
+- **Détail** : [Voir la page dédiée](StrategyExecutor.md)
+
+---
+
 ### PositionTracker
-- **Rôle** : Suit les ordres placés et les positions associées de manière stateless.
-- **Consommation du topic `sessionsrequest`** :
-  - PositionTracker consomme les messages de suivi de session filtrés par DataCollect et StrategyExecutor.
-  - Scalabilité assurée via un consumer group avec partitionnement par `sessionId`.
+- **Rôle** : Suivi des positions ouvertes et ajustement des ordres.
+- **Interactions** :
+  - **Entrées** :
+    - `sessionsrequest` : Demandes de suivi de position.
+  - **Sorties** :
+    - `raworders` : Ordres à enrichir (quantités manquantes).
+- **Comment le service peut scaler ?** :
+  - Partitionnement Kafka par `sessionId`.
+  - Scaling horizontal via Kubernetes pour traiter plus de sessions en parallèle.
+  - **Émetteur lié** : Les demandes sur `sessionsrequest` sont poussées par DataCollect et StrategyExecutor en fonction des sessions actives.
 - **Détail** : [Voir la page dédiée](PositionTracker.md)
 
+---
+
 ### MoneyManager
-- **Rôle** : Ajuste les quantités d'ordres sur la base des données de risque et de portefeuille.
-- **Interaction avec Kafka** :
-  - Consomme le topic `raworders` pour enrichir les ordres.
-  - Publie les ordres complétés sur le topic `orders`.
+- **Rôle** : Enrichissement des ordres avec les quantités et ajustements liés aux risques.
+- **Interactions** :
+  - **Entrées** :
+    - `raworders` : Ordres bruts sans quantités.
+  - **Sorties** :
+    - `orders` : Ordres complets prêts à être exécutés.
+- **Comment le service peut scaler ?** :
+  - Partitionnement Kafka par `orderId`.
+  - Scaling horizontal via Kubernetes.
+  - **Émetteur lié** : Les ordres bruts sur `raworders` sont produits par PositionTracker après calcul des ajustements initiaux.
 - **Détail** : [Voir la page dédiée](MoneyManager.md)
+
+---
+
+### OrderManager
+- **Rôle** : Gestion de l'exécution des ordres auprès des plateformes de trading.
+- **Interactions** :
+  - **Entrées** :
+    - `orders` : Ordres complets à exécuter.
+  - **Sorties** : Aucune.
+- **Comment le service peut scaler ?** :
+  - Scaling horizontal via Kubernetes HPA en fonction de la charge des ordres à traiter.
+  - **Émetteur lié** : Les ordres complets sont alimentés sur `orders` par MoneyManager.
+- **Détail** : [Voir la page dédiée](OrderManager.md)
+
+---
+
+### NotificationService
+- **Rôle** : Envoi des notifications ou alertes via différents canaux.
+- **Interactions** :
+  - **Entrées** : Ordres, alertes système.
+  - **Sorties** : Emails, SMS, notifications UI, etc.
+- **Comment le service peut scaler ?** :
+  - Load balancing horizontal pour répartir la charge entre instances.
+  - **Émetteur lié** : Notifications déclenchées par les actions d'autres services, notamment OrderManager.
+- **Détail** : [Voir la page dédiée](NotificationService.md)
 
 ---
 
@@ -118,8 +168,8 @@ Le schéma ci-dessous illustre les interactions principales entre les services b
 - Les services utilisent des consumer groups pour scaler horizontalement sans conflit.
 - Chaque topic est partitionné en fonction des clés pertinentes (à définir par service).
 
-Exemple :
-- **DataCollect** : Partitionnement par `market+symbol+timeframe`.
+Exemple :
+- **DataCollect** : Scaling horizontal basé sur une table centralisée des workloads.
 - **StrategyExecutor** : Partitionnement par `strategyId`.
 - **SessionManager** : Load Balancing pour traiter les requêtes REST simultanées.
 - **PositionTracker** : Partitionnement par `sessionId`.
@@ -129,7 +179,7 @@ Exemple :
 
 ## Partitionnement des Topics Kafka
 
-Le tableau suivant synthétise le partitionnement appliqué aux principaux topics :
+Le tableau suivant synthétise le partitionnement appliqué aux principaux topics :
 
 | **Topic**          | **Clé de Partition**  | **Description**                                                |
 |---------------------|-----------------------|----------------------------------------------------------------|
