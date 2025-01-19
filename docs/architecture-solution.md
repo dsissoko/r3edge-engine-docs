@@ -200,6 +200,55 @@ graph TD
     B -->|Gère authentification via| D
 ```
 
+## Noms de domaine DNS de la solution
+
+### API principale (microservices)
+- **Prod** : https://api.r3edge.com  
+- **Dev** : https://dev.api.r3edge.com  
+- **Description** : Point d'accès unique pour tous les microservices backend. Les environnements sont différenciés par des URLs distinctes.
+
+### Base de données (PostgreSQL/Supabase)
+- **URL unique** : https://db.r3edge.com  
+- **Description** : Un domaine unique pour la base de données. La séparation des environnements se fait au niveau logique via des schémas spécifiques (dev, prod).
+
+### Kafka
+- **Exposition** : Non exposé directement.  
+- **Description** : Kafka reste interne au système, sécurisé par des ACLs. La distinction des environnements est assurée via des conventions de nommage des topics (par ex. `topic.dev.orders` pour Dev et `topic.orders` pour Prod).
+
+### Config Server
+- **URL unique** : https://config.r3edge.com  
+- **Description** : Gère les configurations des microservices pour tous les environnements. La séparation est réalisée via des Spring Profiles (dev, prod).
+
+### Auth0
+- **URL unique** : https://auth.r3edge.com  
+- **Description** : Un seul domaine pour tous les environnements. La distinction des environnements se fait via des applications Auth0 dédiées :
+  - **App Prod** : `r3edge-engine-prod`
+  - **App Dev** : `r3edge-engine-dev`
+
+### Résumé global
+
+#### API principale
+- **URLs distinctes pour chaque environnement** :
+  - **Prod** : https://api.r3edge.com
+  - **Dev** : https://dev.api.r3edge.com
+
+#### Base de données (PostgreSQL/Supabase)
+- **URL unique** : https://db.r3edge.com  
+- **Séparation logique** via schémas (`dev`, `prod`).
+
+#### Kafka
+- **Cluster unique**, distinction des environnements via les noms des topics (`topic.dev.*` et `topic.*`).
+
+#### Config Server
+- **URL unique** : https://config.r3edge.com  
+- **Séparation** via Spring Profiles (`dev`, `prod`).
+
+#### Auth0
+- **Domaine unique** : https://auth.r3edge.com  
+- **Distinction** via des applications dédiées à chaque environnement :
+  - **Prod** : `r3edge-engine-prod`
+  - **Dev** : `r3edge-engine-dev`
+
 ## À traiter plus tard
 
 ### Écarts identifiés sans Kubernetes
