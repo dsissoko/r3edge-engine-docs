@@ -21,7 +21,7 @@ Pour toute question ou suggestion, veuillez contacter l'équipe de support à [h
 
 ## Licence
 
-Ce projet est sous licence [Tous droits réservés](LICENCE).
+Ce projet est sous licence [Tous droits réservés](LICENSE).
 
 ---
 © 2024 r3edge. Tous droits réservés.
