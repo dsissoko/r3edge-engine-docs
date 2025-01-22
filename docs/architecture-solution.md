@@ -19,6 +19,7 @@ Les principes de base:
 - [Liste des sous-systèmes](#liste-des-sous-systèmes)
 - [Environnement de Production](#environnement-de-production)
 - [Environnement de Développement](#environnement-de-développement)
+- [Pipeline CI/CD](#pipeline-cicd)
 - [Noms de domaine DNS de la solution](#noms-de-domaine-dns-de-la-solution)
 - [Informations complémentaires](#informations-complémentaires)
 - [À traiter plus tard](#à-traiter-plus-tard)
@@ -89,6 +90,7 @@ Liste des plateformes physiques:
 - **DockerHub** : Registre pour stocker et distribuer les images Docker des microservices.  
 - **Auth0** : Service PaaS pour l’authentification, la gestion des utilisateurs et les habilitations.  
 - **OVH** : Fournit la gestion du domaine `r3edge.com`, des sous-domaines DNS, des boîtes mail et autres services associés.  
+- **DevLocal** : Permet aux développeurs de construire, tester et exécuter les microservices en local, notamment via Docker ou des environnements intégrés.  
 
 
 ```mermaid
@@ -203,6 +205,30 @@ graph TD
     B -->|Accède à| E
     B -->|Gère authentification via| D
 ```
+## Pipeline CI/CD
+
+Le pipeline CI/CD joue un rôle central dans l’automatisation des processus de déploiement et de gestion des images Docker.
+
+```mermaid
+graph TD
+    %% Registry
+    A[DockerHub]
+
+    %% Pushers
+    B[DevLocal] -->|Push| A
+    C[GitHub] -->|Push| A
+
+    %% Pullers
+    A -->|Pull| D[DevLocal]
+    A -->|Pull| E[Northflank]
+    A -->|Pull| F[GCP]
+    A -->|Pull| G[OCI]
+```
+
+### Tokens d'accès (gérés dans docker hub)
+
+- TOKEN-CICD-RW : Utilisé par les plateformes pushers (DevLocal, GitHub) pour écrire dans la registry.
+- TOKEN-CICD-R : Utilisé par les plateformes pullers (DevLocal, Northflank, GCP, OCI) pour lire depuis la registry.
 
 ## Noms de domaine DNS de la solution
 
