@@ -177,6 +177,64 @@ graph TB
 - **Détail** : [Voir la page dédiée](NotificationService.md)
 
 ---
+## Début et fin d'une séquence de trading
+
+Ce diagramme illustre le **cycle de vie d'une séquence de trading** pour une stratégie donnée, depuis son activation jusqu'à sa désactivation. Il met en évidence les interactions entre les différents composants du système, en soulignant :
+
+1. **L'activation d'une stratégie** : Initiée par un trader via l'interface utilisateur (UI) ou une API, elle implique la mise à jour de la **table des stratégies actives**, l'envoi d'une commande d'activation (`start`) via Kafka, et l'inscription de la stratégie à un consumer group pour consommer les données OHLCV.
+
+2. **La consommation des données OHLCV** : Les instances de la stratégie consomment les messages d'un **topic Kafka dédié** pour exécuter leur logique métier. Si des données supplémentaires sont nécessaires (comme des indicateurs ou des historiques), elles sont récupérées auprès de **MarketDataService**.
+
+3. **La désactivation d'une stratégie** : Lorsqu'un trader met fin à la séquence de trading, une commande `stop` est envoyée. Cela entraîne la mise à jour de la table des stratégies actives, l'arrêt de la consommation des données par les instances, et la vérification des topics inutilisés par DataCollect.
+
+Ce diagramme met également en lumière le rôle clé de Kafka dans la diffusion des commandes et des données, ainsi que la **table des stratégies actives**, qui sert de source de vérité pour coordonner l'ensemble des interactions.
+
+```mermaid
+sequenceDiagram
+    participant Trader as Trader 👤
+    participant UI as UI 🌐
+    participant SessionManager as SessionManager ⚙️
+    participant DataBase as DataBase 🛢️
+    participant Kafka as Kafka 🔀
+    participant DataCollect as DataCollect ⚙️
+    participant Strategy1 as Strategy1 ⚙️
+    participant MarketDataService as MarketDataService ⚙️
+
+    Trader ->> UI: Start Strategy1-kucoin-BTCUSD-1H
+    UI ->> SessionManager: Activation request
+    SessionManager ->> DataBase: Update active strategies table (ON)
+    SessionManager ->> Kafka: Publish "start" |💬 W topic `strategyCommand`|
+    Kafka ->> Strategy1: Deliver "start" |💬 R topic `strategyCommand`|
+    Strategy1 ->> Kafka: Join consumer group |💬 R topic `kucoin-BTCUSD-1H`|
+    DataCollect ->> Kafka: Publish OHLCV |💬 W topic `kucoin-BTCUSD-1H`|
+    Kafka ->> Strategy1: Deliver OHLCV |💬 R topic `kucoin-BTCUSD-1H`|
+    Strategy1 ->> MarketDataService: Fetch additional data
+    MarketDataService -->> Strategy1: Return data
+    Trader ->> UI: Stop Strategy1-kucoin-BTCUSD-1H
+    UI ->> SessionManager: Stop request
+    SessionManager ->> DataBase: Update active strategies table (OFF)
+    SessionManager ->> Kafka: Publish "stop" |💬 W topic `strategyCommand`|
+    Kafka ->> Strategy1: Deliver "stop" |💬 R topic `strategyCommand`|
+    Strategy1 ->> Kafka: Leave consumer group |💬 R topic `kucoin-BTCUSD-1H`|
+    DataCollect ->> DataBase: Check active strategies
+    DataCollect ->> Kafka: Remove unused topic (if applicable) |💬 W topic `kucoin-BTCUSD-1H`|
+```
+### Légende
+
+🌐 **Requêtes HTTP** : Interactions entre l’utilisateur et les services via des API REST ou interfaces utilisateur.
+
+⚙️ **Services** : Représentation des microservices de l’architecture, responsables des traitements spécifiques.
+
+💬 **Topics Kafka** : Canaux d’échange de messages asynchrones entre services pour la gestion des données et commandes :
+- **W topic** : Écriture dans un topic Kafka (Write).
+- **R topic** : Lecture depuis un topic Kafka (Read).
+
+🔀 **Kafka** : Middleware responsable de la distribution des messages entre producteurs et consommateurs.
+
+🛢️ **Base de données** : Stockage des états persistants, comme la table des stratégies actives.
+
+👤 **Utilisateur** : Le trader initiant les séquences de trading via l’interface utilisateur ou des appels API.
+
 
 ## Stratégies de Scaling Horizontal
 
