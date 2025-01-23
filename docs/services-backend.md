@@ -219,6 +219,7 @@ sequenceDiagram
     DataCollect ->> DataBase: Check active strategies
     DataCollect ->> Kafka: Remove unused topic (if applicable) |💬 W topic `kucoin-BTCUSD-1H`|
 ```
+
 ### Légende
 
 🌐 **Requêtes HTTP** : Interactions entre l’utilisateur et les services via des API REST ou interfaces utilisateur.
@@ -235,6 +236,51 @@ sequenceDiagram
 
 👤 **Utilisateur** : Le trader initiant les séquences de trading via l’interface utilisateur ou des appels API.
 
+## coeur d'une séquence de trading
+
+```mermaid
+sequenceDiagram
+    participant SchedulerService as SchedulerService ⚙️
+    participant DataCollect as DataCollect ⚙️
+    participant Strategy1 as Strategy1 ⚙️
+    participant Kafka as Kafka 🔀
+    participant PositionTracker as PositionTracker ⚙️
+    participant Database as Database 🛢️
+    participant MarketDataService as MarketDataService ⚙️
+    participant MoneyManager as MoneyManager ⚙️
+    participant OrderManager as OrderManager ⚙️
+
+    SchedulerService ->> Kafka: Publish "tracking-tick" |W topic `sessionRequest`|
+    DataCollect ->> Kafka: Publish OHLCV |W topic `ohlcv-kucoin-BTCUSD-1H`|
+    DataCollect ->> Kafka: Publish activation message |W topic `strategyCommand`|
+    Strategy1 ->> Kafka: Consume activation message |R topic `strategyCommand`|
+    Strategy1 ->> Kafka: Consume OHLCV |R topic `ohlcv-kucoin-BTCUSD-1H`|
+    Strategy1 ->> MarketDataService: Fetch additional data (if needed)
+    MarketDataService -->> Strategy1: Return data
+    alt Strategy active
+        Strategy1 ->> Kafka: Publish signal |W topic `signal`|
+        Strategy1 ->> Database: Check active sessions
+        Database -->> Strategy1: Return active sessions
+        opt If active sessions exist
+            Strategy1 ->> Kafka: Publish signal |W topic `sessionRequest`|
+        end
+    end
+
+    PositionTracker ->> Kafka: Consume signal |R topic `sessionRequest`|
+    PositionTracker ->> Database: Query active sessions and account info
+    Database -->> PositionTracker: Return sessions and accounts
+    PositionTracker ->> MoneyManager: Request risk assessment and order valuation
+    MoneyManager -->> PositionTracker: Return valued order
+
+    PositionTracker ->> Kafka: Publish valued order |W topic `orders`|
+    OrderManager ->> Kafka: Consume order |R topic `orders`|
+    OrderManager ->> Platform: Place order on trading platform
+
+    SchedulerService ->> Kafka: Publish "tracking-tick" |W topic `sessionRequest`|
+    PositionTracker ->> Database: Query open positions for tracking
+    Database -->> PositionTracker: Return positions
+    PositionTracker ->> Kafka: Publish tracking results |W topic `positions`|
+```
 
 ## Stratégies de Scaling Horizontal
 
