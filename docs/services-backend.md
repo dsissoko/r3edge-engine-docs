@@ -16,8 +16,7 @@ L'architecture de r3edge repose sur plusieurs microservices bien définis, chacu
 - [Communication interservices](#communication-interservices)
 - [Liste des services](#liste-des-services)
 - [Stratégies de Scaling Horizontal](#stratégies-de-scaling-horizontal)
-- [Partitionnement des Topics Kafka](#partitionnement-des-topics-kafka)
-- [Filtrage et Émission des Topics](#filtrage-et-emission-des-topics)
+- [Filtrage et Émission des Topics](#filtrage-et-émission-des-topics)
 
 ---
 
