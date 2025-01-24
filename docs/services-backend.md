@@ -46,22 +46,57 @@ Les topics Kafka sont le principal mécanisme d'échange asynchrone entre les mi
 Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
 
 ```mermaid
-graph TB
-  User["👤 Utilisateur"] -->|🌐 start, stop, suspend, recover | SM["⚙️ SessionManager"]
-  DC["⚙️ DataCollect"] -->|💬 marketdata | SE["⚙️ StrategyExecutor"]
-  DC -->|💬 strategiesdata | SE
-  DC -->|💬 sessionsrequest | PT["⚙️ PositionTracker"]
-  SE -->|💬 sessionsrequest | PT
-  SE -->|💬 signals | NS["⚙️ NotificationService"]
-  PT -->|💬 raworders | MM["⚙️ MoneyManager"]
-  MM -->|💬 orders | OM["⚙️ OrderManager"]
+
+graph TD
+    %% Services
+    SM["⚙️ SessionManager"] 
+    S1["⚙️ Strategy1"]
+    DC["⚙️ DataCollect"]
+    SS["⚙️ SchedulerService"]
+    PT["⚙️ PositionTracker"]
+    MM["⚙️ MoneyManager"]
+    OM["⚙️ OrderManager"]
+    DB["🛢️ Database"]
+
+    %% Topics Kafka
+    TS["🔀 sessionSignals"]
+    TO["🔀 sessionOrder"]
+    TU["🔀 orderUpdates"]
+
+    %% Relations des services avec les topics
+    S1 -->|Produce| TS
+    TS -->|Consume| PT
+
+    PT -->|Produce| TO
+    TO -->|Consume| OM
+
+    OM -->|Produce| TU
+    TU -->|Consume| PT
+
+    %% Relations des services avec la base
+    SM -->|Write| DB
+    PT -->|Read/Write| DB
+    OM -->|Write| DB
+    DC -->|Read| DB
+    SS -->|Read| DB
+
+    %% API Interactions
+    PT -->|🌐 Get Order Volume| MM
+    OM -->|🌐 Place Orders| Kucoin["🌐 Kucoin Platform"]
+    PT -->|🌐 Get Trade List| Kucoin
+
 
 ```
 
 ### Légende
-- 🌐 **Requêtes HTTP** : Interactions entre l’utilisateur et les services.
-- ⚙️ **Services** : Représentation des microservices de l’architecture.
-- 💬 **Topics Kafka** : Canaux d’échange de messages asynchrones entre services.
+
+| **Symbole** | **Description**                                    |
+|-------------|----------------------------------------------------|
+| ⚙️          | Service applicatif (ex. : SessionManager, Strategy1)|
+| 🛢️          | Base de données pour stockage des informations     |
+| 🔀          | Topic Kafka utilisé pour la communication inter-services |
+| 🌐          | Requête API ou interaction avec une plateforme externe |
+
 
 ---
 ### Exemple d'une session de trading
