@@ -41,17 +41,6 @@ Dans l'architecture de r3edge, les communications entre les microservices backen
 
 Les topics Kafka sont le principal mécanisme d'échange asynchrone entre les microservices. Chaque topic est partitionné et consommé via des consumer groups, garantissant l'isolation et la scalabilité des services.
 
-Liste des principaux topics et leur partitionnement :
-
-| **Topic**          | **Clé de Partition**  | **Données Transportées**         | **Consommateurs**       |
-|---------------------|-----------------------|------------------------------------|--------------------------|
-| `marketdata`        | Aucun (broadcast)     | OHLCV brut                        | AnyService               |
-| `strategiesdata`    | `strategyId`         | OHLCV filtré pour les stratégies  | StrategyExecutor         |
-| `sessionsrequest`   | `sessionId`          | Demandes de suivi de position     | PositionTracker          |
-| `signals`           | Aucun (broadcast)    | Signaux non filtrés               | AnyService               |
-| `raworders`         | `orderId`            | Ordres bruts sans quantité        | MoneyManager             |
-| `orders`            | `orderId`            | Ordres complets prêts à exécuter  | OrderManager             |
-
 ### Diagramme des interactions
 
 Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
@@ -73,6 +62,73 @@ graph TB
 - 🌐 **Requêtes HTTP** : Interactions entre l’utilisateur et les services.
 - ⚙️ **Services** : Représentation des microservices de l’architecture.
 - 💬 **Topics Kafka** : Canaux d’échange de messages asynchrones entre services.
+
+---
+### Exemple d'une session de trading
+Cet exemple illustre les interactions entre les services durant une session de trading r3edge engine avec 3 scénarios:
+- start d'une session à partir d'un trader utilisateur pour  strategy1 sur kucoin pour BTCUSC en time frame 1H et avec une cadence de suivi de 5 mn
+- coeur de session avec déclenchement d'un signal par Strategy1. Ce signal va générer in fine un passage d'ordre, un suivi de positions jusqu'à un TP ou un SL ou un MO (Market Order)
+- stop de la session de trading
+
+#### scénario start
+##### but du scénario: démarrer une session de trading
+- déclarer la session ACTIVE en database
+- programmer un scheduler pour cadencer PositionTracker toutes les 5 minutes
+- créer un topic dynamique dédié à kucoin-BTCUSD-1H qui sera alimenté par DataCollect et consommé par Strategy1
+- activer Strategy1 pour kucoin-BTCUSD-1H
+- identifier clairement les topics et la façon dont ils sont consommés
+- décrire la résilience et la scalabilité de chaque service
+
+##### Point de départ
+- r3edge engine est démarré
+- Strategy1 est chargée mais dormante et a souscrit à un consumergroup du topic command dédié au stratégies
+- DataCollect a démarré sa collecte de toutes les données prévus dans sa conf de démarrage dont Kucoin-BTCUSD-1H mais il a également souscrit à un consumergroup du topic command dédié à la collecte
+- SchedulerService est chargé mais dormant et a souscrit à un consumergroup du topic command dédié au scheduler
+
+##### Scénario coeur
+- Trader envoie start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn à SessionManager
+- SessionManager écrit Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx=ON sur DataBase
+- SessionManager envoie start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx sur le topic command à Strategy1 et à SchedulerService et à DataCollect
+- Strategy1 subscribe à Kucoin-BTCUSD-1H via consumergroup dédié aux strategy
+- SchedulerService reçoit start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx programme le scheduler envoie toutes les 5 minutes un tick tick-5mn-sessionIDxxx sur sessionRequest à PositionTracker
+- DataCollect envoie les OHLCV 1H sur Kucoin-BTCUSD-1H à Strategy1
+
+##### Point d'arrivée
+- Strategy1 est activée
+- SchedulerService auto programmé pour envoyer des ticks toutes les 5 minutes pour la sessionIDxxx
+- DataCollect alimente en OHLCV un topic dynamique consommé par Strategy1
+- PositionTracker cadencé toutes les 5mn pour actualiser les positions (valorisation)
+
+##### Graphe des interactions
+
+```mermaid
+
+graph TD
+    Trader["👤 Trader"] -->|#1🌐 start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn | SessionManager["⚙️ SessionManager"]
+    SessionManager -->|#2🌐 Update session Strategy1-Kucoin-BTCUSD-1H-refresh5mn=ACTIVE | Database["🛢️ Database"]
+    SessionManager -->|#3💬 start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn | Strategy1["⚙️ Strategy1"]
+    SessionManager -->|#3💬 start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn | SchedulerService["⚙️ SchedulerService"]
+    SessionManager -->|#3💬 start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn | DataCollect["⚙️ DataCollect"]
+    DataCollect -->|#4🌐 Update collect status Kucoin-BTCUSD-1H=ACTIVE | Database
+    DataCollect -->|#4.2💬 OHLCV Kucoin-BTCUSD-1H | Strategy1
+    Strategy1 -->|#5.1💬 Subscribe Kucoin-BTCUSD-1H | Kafka["🔀 Kafka"]
+    SchedulerService -->|#6🌐 Update scheduler task refresh5mn-sessionIDxxx=ACTIVE | Database
+    SchedulerService -->|#6.2💬 tick-5mn-sessionIDxxx | PositionTracker["⚙️ PositionTracker"]
+    SchedulerService -->|#6.1🌐 On restart, read scheduled tasks from DB | Database
+    DataCollect -->|#4.1🌐 On restart, read active collects from DB | Database
+    Strategy1 -->|#5🌐 On restart, read active sessions from DB | Database
+
+
+```
+
+##### Tableau des topics
+
+
+| **Topic**          | **Exemple / Partition**                                                | **Producteur**       | **Consommateurs**                                         |
+|---------------------|-----------------------------------------------------------------------|----------------------|-----------------------------------------------------------|
+| `command`          | `start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn` <br> *Clé = sessionIDxxx → Partition 1* | SessionManager       | - Strategy1 (`group.command.strategy`)                   <br> - SchedulerService (`group.command.scheduler`)           <br> - DataCollect (`group.command.collect`)             |
+| `Kucoin-BTCUSD-1H` | `OHLCV Kucoin-BTCUSD-1H` <br> *Clé = Kucoin-BTCUSD-1H → Partition 1*   | DataCollect          | - Strategy1 (`group.kucoin.strategy`)                    |
+| `sessionRequest`   | `tick-5mn-sessionIDxxx` <br> *Clé = sessionIDxxx → Partition 1*        | SchedulerService     | - PositionTracker (`group.session.tracker`)              |
 
 ---
 
