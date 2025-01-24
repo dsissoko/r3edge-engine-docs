@@ -215,6 +215,8 @@ graph TD
   - Les trades réalisés suite à l'exécution des ordres.
   - Le statut et le niveau d'exécution des ordres (NOT_EXECUTED, PARTIALLY_EXECUTED, FULLY_EXECUTED).
 
+##### Graphe des interactions
+
 ```mermaid
 
 graph TD
@@ -260,7 +262,7 @@ graph TD
 
 ---
 
-##### **Scénario cœur**
+##### **Liste des interactions**
 1. **Trader** envoie `stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn` à **SessionManager**.
 2. **SessionManager** écrit `Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx=OFF` dans la base de données.
 3. **SessionManager** envoie `stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx` sur le topic `command` à :
@@ -279,6 +281,8 @@ graph TD
 - **SchedulerService** a déprogrammé la sessionIDxxx.
 - **DataCollect** n'alimente plus le topic dynamique `Kucoin-BTCUSD-1H`, sauf si une autre session active l'exige.
 - **PositionTracker** n'est plus cadencé toutes les 5 minutes pour gérer la sessionIDxxx. Il peut être toujours actif pour d'autres sessions.
+
+##### Graphe des interactions
 
 ```mermaid
 
@@ -309,7 +313,6 @@ graph TD
 | `command`          | `stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx`     | SessionManager         | - Strategy1 (`group.command.strategy`)                   <br> - SchedulerService (`group.command.scheduler`) <br> - DataCollect (`group.command.collect`) |
 | `Kucoin-BTCUSD-1H` | *Cesse d’être utilisé dans ce scénario*                       | DataCollect            | - Strategy1                                               |
 | `sessionRequest`   | *Cesse d’envoyer des ticks pour la sessionIDxxx*              | SchedulerService       | - PositionTracker                                         |
-
 
 ## Liste des services
 
