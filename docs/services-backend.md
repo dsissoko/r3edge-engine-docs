@@ -40,6 +40,17 @@ Dans l'architecture de r3edge, les communications entre les microservices backen
 
 Les topics Kafka sont le principal mécanisme d'échange asynchrone entre les microservices. Chaque topic est partitionné et consommé via des consumer groups, garantissant l'isolation et la scalabilité des services.
 
+| **Topic**           | **Description**                                                                                                                                       |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `command`           | Contrôle global et orchestration (start/stop de sessions, changements de configuration). Produit par SessionManager, consommé par Strategy, SchedulerService et DataCollect. |
+| `sessionSignals`    | Signaux de trading générés par les stratégies (LONG, SHORT, etc.) pour les sessions actives. Produit par Strategy, consommé par PositionTracker.      |
+| `sessionOrder`      | Ordres à exécuter sur les plateformes (BUY, SELL, TP/SL, etc.). Produit par PositionTracker, consommé par OrderManager.                               |
+| `orderUpdates`      | Statut et retour d’exécution des ordres (PLACED, REJECTED, PARTIAL, etc.). Produit par OrderManager, consommé par PositionTracker.                   |
+| `sessionRequest`    | « Ticks » planifiés (ou autres requêtes périodiques) pour animer les sessions. Produit par SchedulerService, consommé par PositionTracker.            |
+| `tradeUpdates`      | Mises à jour sur les trades exécutés (cas échéant). Peut être produit par PositionTracker, consommé par d’autres services ou non consommé si inutile. |
+| `Kucoin-BTCUSD-1H`  | Exemple de topic « marché » dynamique : flux de données OHLCV produites par DataCollect, consommées par Strategy1 (ou tout Strategy intéressé).       |
+
+
 ### Diagramme des interactions
 
 Le schéma ci-dessous illustre les interactions principales entre les services backend, les utilisateurs et les topics Kafka :
