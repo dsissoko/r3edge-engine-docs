@@ -219,17 +219,17 @@ graph TD
 ```mermaid
 
 graph TD
-    Strategy1["⚙️ Strategy1"] -->|🔀 Signal-LONG-Kucoin-BTCUSD-sessionIDxxx | PositionTracker["⚙️ PositionTracker"]
+    Strategy1["⚙️ Strategy1"] -->|💬 Signal-LONG-Kucoin-BTCUSD-sessionIDxxx | PositionTracker["⚙️ PositionTracker"]
     PositionTracker -->|🌐 Ask for Order volume Kucoin-BTCUSD-sessionIDxxx | MoneyManager["⚙️ MoneyManager"]
-    MoneyManager -->|🔀 Calculated Order volume | PositionTracker
-    PositionTracker -->|🔀 Order BUY-Kucoin-BTCUSD-sessionIDxxx | OrderManager["⚙️ OrderManager"]
-    OrderManager -->|🌐 Place Order-sessionIDxxx | Kucoin["🔀 Kucoin Platform"]
+    MoneyManager -->|💬 Calculated Order volume | PositionTracker
+    PositionTracker -->|💬 Order BUY-Kucoin-BTCUSD-sessionIDxxx | OrderManager["⚙️ OrderManager"]
+    OrderManager -->|🌐 Place Order-sessionIDxxx | Kucoin["💬 Kucoin Platform"]
     OrderManager -->|🌐 Update Order-sessionIDxxx-status | Database["🛢️ Database"]
-    OrderManager -->|🔀 OrderIDXXX-placed-sessionIDxxx | PositionTracker
+    OrderManager -->|💬 OrderIDXXX-placed-sessionIDxxx | PositionTracker
     PositionTracker -->|🌐 Ask for trade list-sessionIDxxx | Kucoin
     PositionTracker -->|🌐 Update Positions-sessionIDxxx | Database
     PositionTracker -->|🌐 Update Order-status-sessionIDxxx | Database
-    PositionTracker -->|🔀 TP-Order SELL-Kucoin-BTCUSD-sessionIDxxx | OrderManager
+    PositionTracker -->|💬 TP-Order SELL-Kucoin-BTCUSD-sessionIDxxx | OrderManager
 
 ```
 
@@ -298,10 +298,10 @@ graph TD
     %% Interactions
     Trader -->|🌐 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn| SM
     SM -->|🌐 Write sessionIDxxx=OFF| DB
-    SM -->|🔀 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| S1
-    SM -->|🔀 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| SS
-    SM -->|🔀 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| DC
-    S1 -->|🔀 Unsubscribe Kucoin-BTCUSD-1H| DC
+    SM -->|💬 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| S1
+    SM -->|💬 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| SS
+    SM -->|💬 stop-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx| DC
+    S1 -->|💬 Unsubscribe Kucoin-BTCUSD-1H| DC
     SS -->|🌐 Remove scheduled task sessionIDxxx| DB
     DC -->|🌐 Stop feeding OHLCV to Kucoin-BTCUSD-1H| S1
 
@@ -431,8 +431,6 @@ Les services émetteurs (DataCollect, Strategy1) appliquent des filtres pour gar
 | **DataCollect**       | `Kucoin-BTCUSD-1H`| Sessions actives : timeframe, marché, plateforme.            |
 | **SchedulerService**  | `sessionRequest`  | Sessions actives nécessitant un tick cadencé (toutes les 5 min). |
 | **Strategy1**         | `sessionSignals`  | Signaux générés pour les sessions actives.                  |
-| **OrderManager**      | `orderUpdates`    | Mises à jour des statuts d’ordres associés aux sessions.     |
-| **PositionTracker**   | `tradeUpdates`    | Suivi des positions et des trades réalisés pour chaque session. |
 
 
 ## Liens utiles
