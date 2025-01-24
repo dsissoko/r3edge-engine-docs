@@ -70,34 +70,45 @@ Cet exemple illustre les interactions entre les services durant une session de t
 - coeur de session avec déclenchement d'un signal par Strategy1. Ce signal va générer in fine un passage d'ordre, un suivi de positions jusqu'à un TP ou un SL ou un MO (Market Order)
 - stop de la session de trading
 
-#### scénario start
-##### but du scénario: démarrer une session de trading
-- déclarer la session ACTIVE en database
-- programmer un scheduler pour cadencer PositionTracker toutes les 5 minutes
-- créer un topic dynamique dédié à kucoin-BTCUSD-1H qui sera alimenté par DataCollect et consommé par Strategy1
-- activer Strategy1 pour kucoin-BTCUSD-1H
-- identifier clairement les topics et la façon dont ils sont consommés
-- décrire la résilience et la scalabilité de chaque service
+#### Scénario : Démarrage d'une session de trading
 
-##### Point de départ
-- r3edge engine est démarré
-- Strategy1 est chargée mais dormante et a souscrit à un consumergroup du topic command dédié au stratégies
-- DataCollect a démarré sa collecte de toutes les données prévus dans sa conf de démarrage dont Kucoin-BTCUSD-1H mais il a également souscrit à un consumergroup du topic command dédié à la collecte
-- SchedulerService est chargé mais dormant et a souscrit à un consumergroup du topic command dédié au scheduler
+##### **But du scénario : Démarrer une session de trading**
+- Déclarer la session ACTIVE en base de données.
+- Programmer un scheduler pour cadencer **PositionTracker** toutes les 5 minutes.
+- Créer un topic dynamique dédié à **Kucoin-BTCUSD-1H**, alimenté par **DataCollect** et consommé par **Strategy1**.
+- Activer **Strategy1** pour **Kucoin-BTCUSD-1H**.
+- Identifier clairement les topics et leur mode de consommation.
+- Décrire la résilience et la scalabilité de chaque service.
 
-##### Scénario coeur
-- Trader envoie start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn à SessionManager
-- SessionManager écrit Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx=ON sur DataBase
-- SessionManager envoie start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx sur le topic command à Strategy1 et à SchedulerService et à DataCollect
-- Strategy1 subscribe à Kucoin-BTCUSD-1H via consumergroup dédié aux strategy
-- SchedulerService reçoit start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx programme le scheduler envoie toutes les 5 minutes un tick tick-5mn-sessionIDxxx sur sessionRequest à PositionTracker
-- DataCollect envoie les OHLCV 1H sur Kucoin-BTCUSD-1H à Strategy1
+---
 
-##### Point d'arrivée
-- Strategy1 est activée
-- SchedulerService auto programmé pour envoyer des ticks toutes les 5 minutes pour la sessionIDxxx
-- DataCollect alimente en OHLCV un topic dynamique consommé par Strategy1
-- PositionTracker cadencé toutes les 5mn pour actualiser les positions (valorisation)
+##### **Point de départ**
+- **r3edge engine** est démarré.
+- **Strategy1** est chargée mais dormante, et a souscrit à un consumergroup du topic `command` dédié aux stratégies.
+- **DataCollect** a démarré sa collecte des données définies dans sa configuration initiale, y compris **Kucoin-BTCUSD-1H**, et a également souscrit à un consumergroup du topic `command` dédié à la collecte.
+- **SchedulerService** est chargé mais dormante, et a souscrit à un consumergroup du topic `command` dédié au scheduler.
+
+---
+
+##### **Liste des interactions**
+1. **Trader** envoie `start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn` à **SessionManager**.
+2. **SessionManager** écrit `Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx=ON` dans la base de données.
+3. **SessionManager** envoie `start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx` sur le topic `command` à :
+   - **Strategy1**
+   - **SchedulerService**
+   - **DataCollect**
+4. **Strategy1** s'abonne au topic dynamique **Kucoin-BTCUSD-1H** via son consumergroup dédié.
+5. **SchedulerService** reçoit `start-Strategy1-Kucoin-BTCUSD-1H-refresh5mn-sessionIDxxx`, programme le scheduler, et envoie toutes les 5 minutes un tick `tick-5mn-sessionIDxxx` sur le topic `sessionRequest` à **PositionTracker**.
+6. **DataCollect** envoie les **OHLCV 1H** sur le topic **Kucoin-BTCUSD-1H**, consommé par **Strategy1**.
+
+---
+
+##### **Point d'arrivée**
+- **Strategy1** est activée.
+- **SchedulerService** est auto-programmé pour envoyer des ticks toutes les 5 minutes pour **sessionIDxxx**.
+- **DataCollect** alimente en **OHLCV** un topic dynamique consommé par **Strategy1**.
+- **PositionTracker** est cadencé toutes les 5 minutes pour actualiser les positions (valorisation).
+
 
 ##### Graphe des interactions
 
@@ -130,7 +141,72 @@ graph TD
 | `Kucoin-BTCUSD-1H` | `OHLCV Kucoin-BTCUSD-1H` <br> *Clé = Kucoin-BTCUSD-1H → Partition 1*   | DataCollect          | - Strategy1 (`group.kucoin.strategy`)                    |
 | `sessionRequest`   | `tick-5mn-sessionIDxxx` <br> *Clé = sessionIDxxx → Partition 1*        | SchedulerService     | - PositionTracker (`group.session.tracker`)              |
 
+#### Scénario : Déclenchement d'un signal par Strategy1
+
+##### **But du scénario : Générer des signaux**
+- Envoyer des signaux LONG/SHORT lorsque **Strategy1** détecte des opportunités.
+- Placer des ordres sur Kucoin tout en maîtrisant les risques (via **MoneyManager**).
+- Identifier les ordres exécutés et suivre les positions prises.
+- Gérer les ordres de type TP (Take Profit), SL (Stop Loss), et MO (Market Order), déclenchés par **PositionTracker**.
+
 ---
+
+##### **Point de départ**
+- **Strategy1** est activée et souscrit au topic `sessionSignals` pour générer des signaux.
+- **SchedulerService** est programmé pour envoyer des ticks toutes les 5 minutes pour la sessionIDxxx.
+- **DataCollect** alimente en OHLCV le topic dynamique `Kucoin-BTCUSD-1H`, consommé par **Strategy1**.
+- **PositionTracker** est cadencé toutes les 5 minutes pour actualiser les positions (valorisation) et gérer les exécutions d'ordres.
+
+---
+
+##### **Liste des interactions**
+1. **Strategy1** envoie `Signal-LONG-Kucoin-BTCUSD-sessionIDxxx` sur le topic `sessionSignals` à **PositionTracker**.
+2. **PositionTracker** demande le volume d'ordre à **MoneyManager** via `Ask for Order volume Kucoin-BTCUSD-sessionIDxxx`.
+3. **MoneyManager** renvoie le volume calculé à **PositionTracker**.
+4. **PositionTracker** envoie `Order BUY-Kucoin-BTCUSD-sessionIDxxx` sur le topic `sessionOrder` à **OrderManager**.
+5. **OrderManager** place l’ordre sur la plateforme Kucoin et met à jour la base avec `Order-sessionIDxxx-status`.
+6. **OrderManager** envoie une mise à jour d'ordre via `OrderIDXXX-placed-sessionIDxxx` sur le topic `orderUpdates` à **PositionTracker**.
+7. **PositionTracker** demande la liste des trades associés (`trade list-sessionIDxxx`) à Kucoin.
+8. **PositionTracker** met à jour la base avec :
+   - Les positions associées à la session (`Positions-sessionIDxxx`).
+   - Le statut des ordres (`Order-status-sessionIDxxx`).
+9. Si un TP/SL est déclenché, **PositionTracker** envoie `TP-Order SELL-Kucoin-BTCUSD-sessionIDxxx` sur le topic `sessionOrder` à **OrderManager**.
+
+---
+
+##### **Point d'arrivée**
+- La base de données est mise à jour avec :
+  - Les ordres passés sur Kucoin (OPENED, CLOSED, CANCELED).
+  - Les trades réalisés suite à l'exécution des ordres.
+  - Le statut et le niveau d'exécution des ordres (NOT_EXECUTED, PARTIALLY_EXECUTED, FULLY_EXECUTED).
+
+```mermaid
+
+graph TD
+    Strategy1["⚙️ Strategy1"] -->|🔀 Signal-LONG-Kucoin-BTCUSD-sessionIDxxx | PositionTracker["⚙️ PositionTracker"]
+    PositionTracker -->|🌐 Ask for Order volume Kucoin-BTCUSD-sessionIDxxx | MoneyManager["⚙️ MoneyManager"]
+    MoneyManager -->|🔀 Calculated Order volume | PositionTracker
+    PositionTracker -->|🔀 Order BUY-Kucoin-BTCUSD-sessionIDxxx | OrderManager["⚙️ OrderManager"]
+    OrderManager -->|🌐 Place Order-sessionIDxxx | Kucoin["🔀 Kucoin Platform"]
+    OrderManager -->|🌐 Update Order-sessionIDxxx-status | Database["🛢️ Database"]
+    OrderManager -->|🔀 OrderIDXXX-placed-sessionIDxxx | PositionTracker
+    PositionTracker -->|🌐 Ask for trade list-sessionIDxxx | Kucoin
+    PositionTracker -->|🌐 Update Positions-sessionIDxxx | Database
+    PositionTracker -->|🌐 Update Order-status-sessionIDxxx | Database
+    PositionTracker -->|🔀 TP-Order SELL-Kucoin-BTCUSD-sessionIDxxx | OrderManager
+
+```
+
+##### Tableau des topics
+
+| **Topic**          | **Exemple / Partition**                                        | **Producteur**         | **Consommateurs**                                         |
+|---------------------|--------------------------------------------------------------|------------------------|-----------------------------------------------------------|
+| `sessionSignals`    | `Signal-LONG-Kucoin-BTCUSD-sessionIDxxx`                     | Strategy1              | PositionTracker                                           |
+| `sessionOrder`      | `Order BUY-Kucoin-BTCUSD-sessionIDxxx`                       | PositionTracker        | OrderManager                                              |
+| `orderUpdates`      | `OrderIDXXX-placed-sessionIDxxx`                             | OrderManager           | PositionTracker                                           |
+| `tradeUpdates`      | `Trade Kucoin-BTCUSD-sessionIDxxx`                           | PositionTracker        | Aucun                                                    |
+
+
 
 ## Liste des services
 
