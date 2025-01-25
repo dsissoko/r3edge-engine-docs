@@ -6,6 +6,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ## [Unreleased]
 ### Added
+- (2025-01-20) Nouveaux flowchart dans "Services Backend" pour décrire une séquence de trading.
 - (2025-01-12) Mise en cohérence des chapitres backend avec le tableau de la vue d'ensemble des microservices dans "Services Backend".
 - (2025-01-12) Les descriptions et noms des microservices ont été ajustés pour correspondre au tableau actualisé.
 - (2025-01-12) Suppression des microservices non pertinents pour l'architecture actuelle (par ex. PriceAndVolumeCollector).

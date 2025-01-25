@@ -416,6 +416,17 @@ graph TD
 
 ---
 
+### **TemplateService**
+- **Rôle** : Servir de point de départ pour tous les microservices de l'architecture **r3edge**.\
+Il intègre les bonnes pratiques et les fonctionnalités communes nécessaires pour développer rapidement et efficacement de nouveaux microservices
+  
+- **Comment le service peut scaler ?** :
+il est stateless et ses traitements sont gérés par jobrunr avec un mécanisme de verrou garantissant qu'une seule instance prend en charge le traitement.
+
+- **Détail** : [Voir la page dédiée](TemplateService.md)
+
+---
+
 ## Stratégies de Scaling Horizontal
 
 ### Scaling des services via Kafka
