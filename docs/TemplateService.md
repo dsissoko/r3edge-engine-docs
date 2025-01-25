@@ -36,23 +36,22 @@ Il intègre les bonnes pratiques et les fonctionnalités communes nécessaires p
 
 ### Fonctionnalités principales 
 
-| Feature                                                | Description                                                                                      | Statut |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|--------|
-| Gestion des configurations dynamiques                 | Via **Spring Cloud Config** et **Spring Cloud Bus**.                                            | DONE   |
-| Publication et consommation de messages **Kafka**      | Via **Spring Cloud Stream**.                                                                    | TODO   |
-| Support des toggles dynamiques                        | Activation/désactivation de fonctionnalités en temps réel.                                      | DONE   |
-| Génération automatique de documentation **OpenAPI**    | Documentation des endpoints exposés.                                                            | TODO   |
-| Sécurisation des endpoints                            | Avec **Auth0**.                                                                                 | TODO   |
-| Cache distribué **Hazelcast**                         | Pour accélérer les traitements.                                                                 | TODO   |
-| Connexion à **PostgreSQL**                            | Stockage persistant des données.                                                                | TODO   |
-| Génération et publication d’images Docker             | Automatique via **JIB**.                                                                        | DONE   |
-| Résilience applicative avec **Resilience4j**          | Ensemble de mécanismes pour gérer la résilience :                                               | TODO   |
-| - **Retry**                                           | Gestion des tentatives en cas d’échec transitoire.                                              | TODO   |
-| - **Circuit Breaker**                                 | Protection contre les services défaillants.                                                    | TODO   |
-| - **Rate Limiter**                                    | Limitation du nombre de requêtes pour protéger les ressources.                                  | TODO   |
-| - **Bulkhead**                                        | Isolation pour limiter l’impact des surcharges.                                                | TODO   |
-| - **Time Limiter**                                    | Gestion des délais d’attente pour éviter les blocages.                                          | TODO   |
-| Gestion des tâches et reprise en cas d'erreur         | Via **JobRunr** pour orchestrer et rejouer les tâches en cas d'échec.                           | TODO   |
+| Feature                                                | Description                                                                                      | Statut      |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|-------------|
+| Gestion des configurations dynamiques                 | Via **Spring Cloud Config** et **Spring Cloud Bus**.                                            | ✅ Done      |
+| Publication et consommation de messages **Kafka**      | Via **Spring Cloud Stream**.                                                                    | 📝 TODO      |
+| Support des toggles dynamiques                        | Activation/désactivation de fonctionnalités en temps réel.                                      | 📊 Test      |
+| Génération automatique de documentation **OpenAPI**    | Documentation des endpoints exposés.                                                            | 📝 TODO      |
+| Sécurisation des endpoints                            | Avec **Auth0**.                                                                                 | 📝 TODO      |
+| Cache distribué **Hazelcast**                         | Pour accélérer les traitements.                                                                 | 📝 TODO      |
+| Connexion à **PostgreSQL**                            | Stockage persistant des données.                                                                | 📝 TODO      |
+| Génération et publication d’images Docker             | Automatique via **JIB**.                                                                        | ✅ Done      |
+| Resilience4j - Retry                                  | Gestion des tentatives en cas d’échec transitoire.                                              | 📝 TODO      |
+| Resilience4j - Circuit Breaker                        | Protection contre les services défaillants.                                                    | 📝 TODO      |
+| Resilience4j - Rate Limiter                           | Limitation du nombre de requêtes pour protéger les ressources.                                  | 📝 TODO      |
+| Resilience4j - Bulkhead                               | Isolation pour limiter l’impact des surcharges.                                                | 📝 TODO      |
+| Resilience4j - Time Limiter                           | Gestion des délais d’attente pour éviter les blocages.                                          | 📝 TODO      |
+| Gestion des tâches et reprise en cas d'erreur         | Via **JobRunr** pour orchestrer et rejouer les tâches en cas d'échec.                           | 📝 TODO      |
 
 
 ---
