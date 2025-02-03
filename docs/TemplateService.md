@@ -108,7 +108,7 @@ Voici une liste d'articles, de blogs ou de documents de référence utiles pour 
 
 Le code source de ce microservice est disponible dans le dépôt suivant :
 
-- **GitHub** : [r3edge-template Repository](https://github.com/r3edge/r3edge-template)
+- **GitHub** : [r3edge-ms-template Repository](https://github.com/dsissoko/r3edge-ms-template)
 
 ---
 
