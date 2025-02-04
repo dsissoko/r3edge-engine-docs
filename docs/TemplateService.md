@@ -41,7 +41,7 @@ Il intègre les bonnes pratiques et les fonctionnalités communes nécessaires p
 | Gestion des configurations dynamiques               | Via **Spring Cloud Config** et **Spring Cloud Bus**.                                    | ✅ Done         |
 | Publication et consommation de messages **Kafka**   | Via **Spring Cloud Stream**.                                                            | 🔄 In Progress |
 | Support des toggles dynamiques                      | Activation/désactivation de fonctionnalités en temps réel.                              | 📊 Test        |
-| Génération automatique de documentation **OpenAPI** | Documentation des endpoints exposés.                                                    | 📝 TODO        |
+| Génération automatique de documentation **OpenAPI** | Documentation des endpoints exposés.                                                    | ✅ Done        |
 | Sécurisation des endpoints                          | Avec **Auth0**.                                                                         | 📝 TODO        |
 | Cache distribué **Hazelcast**                       | Pour accélérer les traitements.                                                         | 📝 TODO        |
 | Connexion à **PostgreSQL**                          | Stockage persistant des données.                                                        | ✅ Done         |
